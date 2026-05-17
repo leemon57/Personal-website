@@ -1,0 +1,247 @@
+@import "tailwindcss";
+
+:root {
+  --color-paper: #fafaf7;
+  --color-ink: #1a1a1a;
+  --color-ink-muted: #6b6b6b;
+  --color-ink-faint: #a3a39e;
+  --color-rule: #e5e5e0;
+  --color-accent: #8b2635;
+  --color-accent-hover: #6e1d2a;
+  --color-surface: #f2f1eb;
+
+  --font-newsreader: "Newsreader", Georgia, serif;
+  --font-jetbrains: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+
+  --space-page-x: 1.5rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --transition-fast: 150ms ease;
+  --transition-focus: 200ms ease;
+}
+
+@theme inline {
+  --color-paper: var(--color-paper);
+  --color-ink: var(--color-ink);
+  --color-ink-muted: var(--color-ink-muted);
+  --color-ink-faint: var(--color-ink-faint);
+  --color-rule: var(--color-rule);
+  --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-surface: var(--color-surface);
+
+  --font-serif: var(--font-newsreader);
+  --font-mono: var(--font-jetbrains);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-size: 18px;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-newsreader);
+  line-height: 1.7;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration-line: underline;
+  text-decoration-thickness: 0.5px;
+  text-underline-offset: 3px;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+}
+
+a:focus-visible,
+button:focus-visible {
+  border-radius: var(--radius-sm);
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  transition: outline-offset var(--transition-focus);
+}
+
+button {
+  font: inherit;
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: var(--font-jetbrains);
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  z-index: 50;
+  transform: translateY(-200%);
+  background: var(--color-paper);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.6rem;
+  font-family: var(--font-jetbrains);
+  font-size: 0.8125rem;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.site-shell {
+  margin: 0 auto;
+  max-width: 1024px;
+  padding-left: var(--space-page-x);
+  padding-right: var(--space-page-x);
+}
+
+.content-column {
+  max-width: 680px;
+}
+
+.section-label {
+  color: var(--color-ink-muted);
+  font-family: var(--font-jetbrains);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+}
+
+.unstyled-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.prose {
+  max-width: 680px;
+}
+
+.prose > * + * {
+  margin-top: 1.5rem;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  color: var(--color-ink);
+  font-weight: 500;
+  line-height: 1.2;
+  margin-top: 3rem;
+}
+
+.prose h1 {
+  font-size: 2.5rem;
+  line-height: 1.15;
+}
+
+.prose h2 {
+  font-size: 1.75rem;
+}
+
+.prose h3 {
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+.prose p,
+.prose li {
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.25rem;
+}
+
+.prose li + li {
+  margin-top: 0.5rem;
+}
+
+.prose blockquote {
+  border-left: 2px solid var(--color-rule);
+  color: var(--color-ink);
+  font-style: italic;
+  margin-left: 0;
+  padding-left: 2rem;
+}
+
+.prose hr {
+  border: 0;
+  border-top: 0.5px solid var(--color-rule);
+  margin: 4rem 0;
+}
+
+.prose table {
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  width: 100%;
+}
+
+.prose th,
+.prose td {
+  border-bottom: 0.5px solid var(--color-rule);
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.prose :not(pre) > code {
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  font-size: 0.85em;
+  padding: 0.125rem 0.375rem;
+}
+
+.code-html pre {
+  background: transparent !important;
+  margin: 0;
+  overflow-x: auto;
+  padding: 1rem;
+}
+
+.code-html code {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --space-page-x: 2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
