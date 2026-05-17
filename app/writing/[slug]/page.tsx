@@ -50,22 +50,20 @@ export default async function WritingPage({ params }: WritingPageProps) {
     };
 
     return (
-      <article className="site-shell">
+      <article className="layout">
         <script
           dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
           type="application/ld+json"
         />
-        <div className="content-column py-16">
-          <header>
-            <h1 className="text-[2.5rem] font-medium leading-[1.15]">{entry.frontmatter.title}</h1>
-            <p className="mt-4 font-mono text-[0.8125rem] text-ink-muted">
+        <div className="prose">
+          <header className="post-header">
+            <h1>{entry.frontmatter.title}</h1>
+            <p className="meta">
               <time dateTime={entry.frontmatter.date}>{entry.frontmatter.date}</time> /{" "}
               {entry.readingTime}
             </p>
           </header>
-          <div className="mt-12">
-            <MdxRenderer source={entry.body} />
-          </div>
+          <MdxRenderer source={entry.body} />
         </div>
       </article>
     );

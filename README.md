@@ -2,6 +2,10 @@
 
 Next.js 15 personal site for `hanyjiang.com`, built from `plan (4).md`.
 
+## Editing Content
+
+Read [CONTENT_GUIDE.md](CONTENT_GUIDE.md) for a full map of where every piece of site information lives.
+
 ## Run Locally
 
 ```bash
@@ -29,7 +33,7 @@ Create a new MDX file at:
 content/writing/[slug].mdx
 ```
 
-Use `content/writing/example-post.mdx` as the frontmatter example. Set `draft: true` to hide a post.
+Use `content/writing/spike-etl-pipeline.mdx` as the frontmatter example. Set `draft: true` to hide a post.
 
 ## Update Now and Uses
 

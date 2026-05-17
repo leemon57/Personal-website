@@ -10,23 +10,23 @@ import type { WorkFrontmatter } from "@/lib/content";
  */
 export interface ProjectCardProps {
   project: WorkFrontmatter;
+  index?: number;
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export function ProjectCard({ project, index }: ProjectCardProps) {
   return (
-    <article className="border-b border-rule pb-8">
-      <h3 className="text-[1.25rem] font-medium leading-[1.3]">
-        <Link className="unstyled-link hover:text-accent" href={`/work/${project.slug}`}>
-          {project.title}
+    <article className="proj">
+      <div className="idx">{String(index ?? project.order).padStart(2, "0")}</div>
+      <div>
+        <h3>
+          <Link href={`/work/${project.slug}`}>{project.title}</Link>
+        </h3>
+        <p>{project.subtitle}</p>
+        <p className="stack">{project.stack.join(" / ")}</p>
+        <Link className="more" href={`/work/${project.slug}`}>
+          read the case study -&gt;
         </Link>
-      </h3>
-      <p className="mt-3 text-ink">{project.subtitle}</p>
-      <p className="mt-3 font-mono text-[0.8125rem] leading-normal text-ink-muted">
-        {project.stack.join(" / ")}
-      </p>
-      <Link className="mt-4 inline-block font-mono text-[0.8125rem]" href={`/work/${project.slug}`}>
-        read the case study -&gt;
-      </Link>
+      </div>
     </article>
   );
 }

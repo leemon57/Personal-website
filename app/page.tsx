@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { PostRow } from "@/components/PostRow";
 import { ProjectCard } from "@/components/ProjectCard";
 import { getAllWork, getAllWriting } from "@/lib/content";
@@ -31,44 +32,47 @@ export default async function HomePage() {
   };
 
   return (
-    <div className="site-shell">
+    <div className="layout">
       <script
         dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
         type="application/ld+json"
       />
-      <div className="content-column py-16">
-        <section aria-labelledby="intro-title">
-          <h1 className="text-[2.5rem] font-medium leading-[1.15]" id="intro-title">
-            Hany Jiang
-          </h1>
-          <p className="mt-6 text-[1.25rem] leading-[1.45]">
-            I build full-stack systems and data tools. Data Science @ Waterloo.
+      <div className="prose">
+        <section aria-labelledby="intro-title" className="intro">
+          <h1 id="intro-title">Hany Jiang</h1>
+          <p className="lede">
+            I build full-stack systems and data tools. Data Science <span className="muted">@ Waterloo</span>.
           </p>
-          <p className="mt-4 text-[1.05rem] italic leading-[1.6] text-ink-muted">
-            Open to Summer 2026 co-op - SWE, Data, ML.
-          </p>
+          <p className="open">Open to Summer 2026 co-op - SWE, Data, ML.</p>
         </section>
 
-        <section aria-labelledby="selected-work" className="mt-24">
-          <h2 className="section-label" id="selected-work">
-            Selected work
-          </h2>
-          <div className="space-y-8">
-            {featuredWork.map((entry) => (
-              <ProjectCard key={entry.frontmatter.slug} project={entry.frontmatter} />
+        <hr className="rule" />
+
+        <section aria-labelledby="selected-work">
+          <p className="caps" id="selected-work">
+            <span className="num">01</span>Selected work
+          </p>
+          <div>
+            {featuredWork.map((entry, index) => (
+              <ProjectCard key={entry.frontmatter.slug} index={index + 1} project={entry.frontmatter} />
             ))}
           </div>
         </section>
 
-        <section aria-labelledby="recent-writing" className="mt-24">
-          <h2 className="section-label" id="recent-writing">
-            Writing
-          </h2>
+        <hr className="rule" />
+
+        <section aria-labelledby="recent-writing">
+          <p className="caps" id="recent-writing">
+            <span className="num">02</span>Recent writing
+          </p>
           <div>
-            {recentWriting.map((entry) => (
+            {recentWriting.slice(0, 4).map((entry) => (
               <PostRow key={entry.frontmatter.slug} post={entry.frontmatter} />
             ))}
           </div>
+          <p className="mono" style={{ marginTop: "1.5rem" }}>
+            <Link href="/writing">all writing -&gt;</Link>
+          </p>
         </section>
       </div>
     </div>

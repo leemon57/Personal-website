@@ -47,15 +47,26 @@ export interface RootLayoutProps {
 }
 
 export default function RootLayout({ children }: RootLayoutProps) {
+  const themeScript = `
+    try {
+      var saved = localStorage.getItem('hj-theme');
+      var prefers = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = saved || (prefers ? 'dark' : 'light');
+    } catch (e) {
+      document.documentElement.dataset.theme = 'light';
+    }
+  `;
+
   return (
-    <html className={`${newsreader.variable} ${jetbrainsMono.variable}`} lang="en">
+    <html className={`${newsreader.variable} ${jetbrainsMono.variable}`} lang="en" suppressHydrationWarning>
       <body>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <a className="skip-link" href="#main">
           Skip to content
         </a>
         <Nav />
         <main id="main">{children}</main>
-        <Footer className="mt-24" />
+        <Footer />
       </body>
     </html>
   );

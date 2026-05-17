@@ -10,29 +10,37 @@ export const metadata: Metadata = {
 
 export default function NowPage() {
   return (
-    <div className="site-shell">
-      <article className="content-column py-16">
-        <header>
-          <h1 className="text-[2.5rem] font-medium leading-[1.15]">Now</h1>
-          <p className="mt-4 font-mono text-[0.8125rem] text-ink-muted">Updated 2026-05-17</p>
+    <div className="layout">
+      <article className="prose">
+        <header style={{ marginBottom: "2.5rem" }}>
+          <h1>/now</h1>
+          <p className="mono small muted" style={{ marginTop: "0.5rem" }}>
+            Updated 2026-05-04 / Waterloo, ON
+          </p>
         </header>
-        <section className="mt-12" aria-labelledby="working-on">
-          <h2 className="section-label" id="working-on">
-            Working on
-          </h2>
-          <p>Draft this section with current work, recruiting focus, and shipped projects.</p>
+        <section aria-labelledby="working-on" className="now-section">
+          <p className="caps" id="working-on">Working on</p>
+          <p>
+            Recruiting for Summer 2026 co-op: applications out, working through interviews.
+            Between cycles I am extending SPIKE with a second schema variant for review articles,
+            and writing up the dead-letter pattern.
+          </p>
         </section>
-        <section className="mt-16" aria-labelledby="learning">
-          <h2 className="section-label" id="learning">
-            Learning
-          </h2>
-          <p>Draft this section with current technical reading and practice.</p>
+        <section aria-labelledby="learning" className="now-section">
+          <p className="caps" id="learning">Learning</p>
+          <p>
+            Slowly working through <em>Designing Data-Intensive Applications</em> a second time.
+            First pass was before I had built anything; rereading is a completely different book.
+            Also picking up Rust well enough to ship the logbook CLI.
+          </p>
         </section>
-        <section className="mt-16" aria-labelledby="reading">
-          <h2 className="section-label" id="reading">
-            Reading
-          </h2>
-          <p>Draft this section with a short list of books, papers, and essays.</p>
+        <section aria-labelledby="reading" className="now-section">
+          <p className="caps" id="reading">Reading</p>
+          <ul>
+            <li><em>The Mythical Man-Month</em> by Brooks.</li>
+            <li><em>The Dream Machine</em>, Stripe Press edition.</li>
+            <li>Whatever Simon Willison is linking to this week.</li>
+          </ul>
         </section>
       </article>
     </div>

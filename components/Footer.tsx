@@ -19,18 +19,15 @@ const links = [
 
 export function Footer({ className }: FooterProps) {
   return (
-    <footer className={className}>
-      <div className="site-shell border-t border-rule py-8">
-        <nav
-          aria-label="Footer"
-          className="flex flex-wrap gap-x-4 gap-y-2 font-mono text-[0.8125rem] text-ink-muted"
-        >
-          {links.map((link) => (
-            <a key={link.href} href={link.href}>
-              {link.label}
-            </a>
-          ))}
-        </nav>
+    <footer className={`footer ${className ?? ""}`}>
+      <div className="layout footer-inner">
+        {links.map((link, index) => (
+          <span key={link.href}>
+            <a href={link.href}>{link.label}</a>
+            {index < links.length - 1 ? <span className="faint"> / </span> : null}
+          </span>
+        ))}
+        <span className="right">2026 / waterloo, on</span>
       </div>
     </footer>
   );

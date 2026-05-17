@@ -1,0 +1,38 @@
+---
+title: "Designing SPIKE's ETL pipeline for unstructured publications"
+slug: "spike-etl-pipeline"
+date: "2026-04-12"
+description: "Schema validation, OpenAI structured outputs, and the tradeoffs of pipeline rigidity."
+draft: false
+---
+
+When I started writing the SPIKE ingest pipeline I treated the schema as paperwork: something to fill in once the parser worked. By the second week I had reversed the order. The schema became the first artifact, and the parser was simply the thing trying to satisfy it. That reversal turned out to be the most useful decision in the project.
+
+The conventional framing of schema validation is defensive: a wall at the edge of your system that keeps bad data out. That framing is fine for a public API but it actively hurts you when you are the only one producing the data. The schema stops being a wall and starts being a debugger.
+
+## A small example
+
+Here is roughly what the SPIKE row schema looked like by week three. Every line in it is the residue of a paper that failed in an interesting way:
+
+```ts
+const PaperRow = z.object({
+  doi: z.string().regex(/^10\.\d{4,9}\//), // tightened after 7 typo cases
+  organism: z.enum(["mouse", "rat", "human", "cell", "plant"]),
+  payload: z.string().min(2).max(80),
+  exposure_days: z.number().int().nonnegative(), // catches approximate values
+  outcome: z.enum(["positive", "null", "mixed"]),
+  reviewed: z.boolean().default(false),
+});
+```
+
+Each constraint is the fossil of a bug. `exposure_days` as a non-negative integer caught a class of papers that reported ranges as strings. `organism` as an enum caught a long tail of free-text values that needed to be flattened or routed to a different schema entirely.
+
+> The schema is the place where the messy world meets your typed program. Every line of it should be load-bearing.
+
+## Where this fails
+
+Schema-first works when the data domain is narrow and you control the producer or can iterate against it. It fails when the domain is genuinely heterogeneous, such as a documents-from-everywhere RAG ingest. The schema needs an escape hatch in those cases, and a dead-letter queue is the cleanest one I know.[^1]
+
+Most of the time, though, the domain is narrower than you think.
+
+[^1]: A dead-letter queue is just a separate table indexed by error reason. The boring version is enough.

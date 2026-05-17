@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { cn } from "@/lib/cn";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 /**
  * Nav
@@ -13,7 +13,7 @@ export interface NavProps {
 }
 
 const navItems = [
-  { href: "/work", label: "work" },
+  { href: "/work/spike", label: "work" },
   { href: "/writing", label: "writing" },
   { href: "/now", label: "now" },
   { href: "/uses", label: "uses" },
@@ -22,17 +22,23 @@ const navItems = [
 
 export function Nav({ className }: NavProps) {
   return (
-    <header className={cn("site-shell py-8", className)}>
-      <nav aria-label="Primary" className="flex flex-wrap items-baseline gap-x-6 gap-y-3">
-        <Link className="unstyled-link text-[0.95rem] font-medium leading-none text-ink" href="/">
-          Hany Jiang
-        </Link>
-        <div className="flex flex-wrap gap-x-4 gap-y-2 font-mono text-[0.8125rem] leading-none text-ink-muted">
-          {navItems.map((item) => (
-            <Link key={item.href} href={item.href}>
-              {item.label}
-            </Link>
+    <header className={`nav ${className ?? ""}`}>
+      <nav aria-label="Primary" className="layout nav-inner">
+        <div className="nav-name">
+          <Link className="quiet" href="/">
+            Hany Jiang
+          </Link>
+        </div>
+        <div className="nav-links">
+          {navItems.map((item, index) => (
+            <span key={item.href}>
+              <Link className="quiet" href={item.href}>
+                {item.label}
+              </Link>
+              {index < navItems.length - 1 ? <span className="sep">/</span> : null}
+            </span>
           ))}
+          <ThemeToggle />
         </div>
       </nav>
     </header>

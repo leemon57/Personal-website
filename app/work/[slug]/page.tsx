@@ -41,27 +41,24 @@ export default async function WorkPage({ params }: WorkPageProps) {
     const entry = await getWorkBySlug(slug);
 
     return (
-      <article className="site-shell">
-        <div className="content-column py-16">
+      <article className="layout">
+        <div className="prose">
           <header>
-            <h1 className="text-[2.5rem] font-medium leading-[1.15]">{entry.frontmatter.title}</h1>
-            <p className="mt-4 text-[1.25rem] leading-[1.45] text-ink-muted">
+            <p className="caps">Case study / {String(entry.frontmatter.order).padStart(2, "0")}</p>
+            <h1>{entry.frontmatter.title}</h1>
+            <p className="lede muted" style={{ fontStyle: "italic", fontSize: "1.25rem" }}>
               {entry.frontmatter.subtitle}
             </p>
-            <div className="mt-8">
-              <MetadataStrip
-                demo={entry.frontmatter.demo}
-                repo={entry.frontmatter.repo}
-                role={entry.frontmatter.role}
-                stack={entry.frontmatter.stack}
-                status={entry.frontmatter.status}
-                timeline={entry.frontmatter.timeline}
-              />
-            </div>
+            <MetadataStrip
+              demo={entry.frontmatter.demo}
+              repo={entry.frontmatter.repo}
+              role={entry.frontmatter.role}
+              stack={entry.frontmatter.stack}
+              status={entry.frontmatter.status}
+              timeline={entry.frontmatter.timeline}
+            />
           </header>
-          <div className="mt-12">
-            <MdxRenderer source={entry.body} />
-          </div>
+          <MdxRenderer source={entry.body} />
         </div>
       </article>
     );

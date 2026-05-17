@@ -8,20 +8,37 @@ export const metadata: Metadata = {
   },
 };
 
-const sections = ["Editor", "Languages", "Frontend", "Data/ML", "Hardware", "Services"];
+const sections = [
+  { title: "Editor", items: [["Neovim", "LazyVim config, kept boring on purpose"], ["VS Code", "for anything MDX or notebook-adjacent"], ["Theme", "Rose Pine Dawn"]] },
+  { title: "Languages", items: [["TypeScript", "primary; strict + noUncheckedIndexedAccess"], ["Python", "data work, notebooks, ingest workers"], ["Rust", "CLI tools, learning"]] },
+  { title: "Frontend", items: [["Next.js", "App Router; static-first"], ["Tailwind", "v4, with CSS variables for tokens"], ["MDX", "content lives next to code"]] },
+  { title: "Data / ML", items: [["Postgres", "default datastore"], ["DuckDB", "local analytics"], ["dlt", "small ELT pipelines"], ["OpenAI", "structured outputs only"]] },
+  { title: "Hardware", items: [["Laptop", "M2 MacBook Air 16GB"], ["Keyboard", "Keychron Q1"], ["Display", "Dell U2723QE 4K"], ["Notes", "Field Notes + Pilot G2"]] },
+  { title: "Services", items: [["Hosting", "Vercel"], ["Domain", "Cloudflare Registrar"], ["Email", "Fastmail"], ["Analytics", "Plausible"]] },
+];
 
 export default function UsesPage() {
   return (
-    <div className="site-shell">
-      <article className="content-column py-16">
-        <h1 className="text-[2.5rem] font-medium leading-[1.15]">Uses</h1>
-        <div className="mt-12 space-y-12">
+    <div className="layout">
+      <article className="prose">
+        <header style={{ marginBottom: "2rem" }}>
+          <h1>/uses</h1>
+          <p className="muted" style={{ marginTop: "0.75rem" }}>
+            The tools and configs I use day-to-day.
+          </p>
+        </header>
+        <div>
           {sections.map((section) => (
-            <section key={section} aria-labelledby={section.toLowerCase().replace(/[^a-z0-9]/gu, "-")}>
-              <h2 className="section-label" id={section.toLowerCase().replace(/[^a-z0-9]/gu, "-")}>
-                {section}
-              </h2>
-              <p>Draft this section with the tools worth naming.</p>
+            <section className="uses-group" key={section.title}>
+              <h3>{section.title}</h3>
+              <ul>
+                {section.items.map(([key, value]) => (
+                  <li key={key}>
+                    <span className="k">{key}</span>
+                    <span className="v">{value}</span>
+                  </li>
+                ))}
+              </ul>
             </section>
           ))}
         </div>
