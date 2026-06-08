@@ -8,7 +8,7 @@ import { Prose } from "@/components/Prose";
  *
  * Compiles trusted local MDX source and wraps it in the site prose styles.
  *
- * Used by: dynamic work and writing routes
+ * Used by: dynamic work routes
  */
 export interface MdxRendererProps {
   source: string;

@@ -14,7 +14,6 @@ const links = [
   { href: "https://github.com/HanyJiang", label: "github" },
   { href: "https://www.linkedin.com/in/hanyjiang", label: "linkedin" },
   { href: "/resume.pdf", label: "resume (pdf)" },
-  { href: "/feed.xml", label: "rss" },
 ];
 
 export function Footer({ className }: FooterProps) {

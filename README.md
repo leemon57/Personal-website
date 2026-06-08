@@ -25,16 +25,6 @@ content/work/[slug].mdx
 
 Use `content/work/spike.mdx` as the frontmatter example. Set `featured: true` to show it on the homepage.
 
-## Add a Blog Post
-
-Create a new MDX file at:
-
-```text
-content/writing/[slug].mdx
-```
-
-Use `content/writing/spike-etl-pipeline.mdx` as the frontmatter example. Set `draft: true` to hide a post.
-
 ## Update Now and Uses
 
 Edit:

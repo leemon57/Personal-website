@@ -13,8 +13,8 @@ export interface NavProps {
 }
 
 const navItems = [
-  { href: "/work/spike", label: "work" },
-  { href: "/writing", label: "writing" },
+  { href: "/#ask-hany", label: "ask" },
+  { href: "/work", label: "work" },
   { href: "/now", label: "now" },
   { href: "/uses", label: "uses" },
   { href: "/resume.pdf", label: "resume" },

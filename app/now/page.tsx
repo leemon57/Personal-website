@@ -19,26 +19,36 @@ export default function NowPage() {
           </p>
         </header>
         <section aria-labelledby="working-on" className="now-section">
-          <p className="caps" id="working-on">Working on</p>
+          <p className="caps" id="working-on">
+            Working on
+          </p>
           <p>
-            Recruiting for Summer 2026 co-op: applications out, working through interviews.
-            Between cycles I am extending SPIKE with a second schema variant for review articles,
-            and writing up the dead-letter pattern.
+            Recruiting for Summer 2026 co-op: applications out, working through
+            interviews. Between cycles I am extending SPIKE with a second schema variant
+            for review articles, and documenting the dead-letter pattern.
           </p>
         </section>
         <section aria-labelledby="learning" className="now-section">
-          <p className="caps" id="learning">Learning</p>
+          <p className="caps" id="learning">
+            Learning
+          </p>
           <p>
-            Slowly working through <em>Designing Data-Intensive Applications</em> a second time.
-            First pass was before I had built anything; rereading is a completely different book.
-            Also picking up Rust well enough to ship the logbook CLI.
+            Slowly working through <em>Designing Data-Intensive Applications</em> a second
+            time. First pass was before I had built anything; rereading is a completely
+            different book. Also picking up Rust well enough to ship the logbook CLI.
           </p>
         </section>
         <section aria-labelledby="reading" className="now-section">
-          <p className="caps" id="reading">Reading</p>
+          <p className="caps" id="reading">
+            Reading
+          </p>
           <ul>
-            <li><em>The Mythical Man-Month</em> by Brooks.</li>
-            <li><em>The Dream Machine</em>, Stripe Press edition.</li>
+            <li>
+              <em>The Mythical Man-Month</em> by Brooks.
+            </li>
+            <li>
+              <em>The Dream Machine</em>, Stripe Press edition.
+            </li>
             <li>Whatever Simon Willison is linking to this week.</li>
           </ul>
         </section>

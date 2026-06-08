@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
  *
  * Applies the site typography system to long-form MDX content.
  *
- * Used by: app/work/[slug]/page.tsx, app/writing/[slug]/page.tsx
+ * Used by: app/work/[slug]/page.tsx
  */
 export interface ProseProps {
   children: ReactNode;

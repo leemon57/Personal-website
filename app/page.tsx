@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { PostRow } from "@/components/PostRow";
+import { PortfolioAgent } from "@/components/PortfolioAgent";
 import { ProjectCard } from "@/components/ProjectCard";
-import { getAllWork, getAllWriting } from "@/lib/content";
+import { getAllWork } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Hany Jiang - Data + ML + Systems",
@@ -14,9 +13,21 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [work, writing] = await Promise.all([getAllWork(), getAllWriting()]);
+  const work = await getAllWork();
   const featuredWork = work.filter((entry) => entry.frontmatter.featured).slice(0, 4);
-  const recentWriting = writing.slice(0, 5);
+  const agentProjects = work.map((entry) => ({
+    title: entry.frontmatter.title,
+    subtitle: entry.frontmatter.subtitle,
+    slug: entry.frontmatter.slug,
+    status: entry.frontmatter.status,
+    role: entry.frontmatter.role,
+    timeline: entry.frontmatter.timeline,
+    stack: entry.frontmatter.stack,
+    repo: entry.frontmatter.repo,
+    demo: entry.frontmatter.demo,
+    featured: entry.frontmatter.featured,
+    order: entry.frontmatter.order,
+  }));
 
   const personJsonLd = {
     "@context": "https://schema.org",
@@ -37,16 +48,19 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
         type="application/ld+json"
       />
-      <div className="prose">
-        <section aria-labelledby="intro-title" className="intro">
+      <div className="home-stack">
+        <section aria-labelledby="intro-title" className="intro agent-intro">
           <h1 id="intro-title">Hany Jiang</h1>
           <p className="lede">
-            I build full-stack systems and data tools. Data Science <span className="muted">@ Waterloo</span>.
+            I build full-stack systems and data tools. Data Science{" "}
+            <span className="muted">@ Waterloo</span>.
           </p>
-          <p className="open">Open to Summer 2026 co-op - SWE, Data, ML.</p>
+          <p className="open">
+            Ask the site about my projects, stack, resume, or Summer 2026 co-op fit.
+          </p>
         </section>
 
-        <hr className="rule" />
+        <PortfolioAgent projects={agentProjects} />
 
         <section aria-labelledby="selected-work">
           <p className="caps" id="selected-work">
@@ -54,25 +68,13 @@ export default async function HomePage() {
           </p>
           <div>
             {featuredWork.map((entry, index) => (
-              <ProjectCard key={entry.frontmatter.slug} index={index + 1} project={entry.frontmatter} />
+              <ProjectCard
+                key={entry.frontmatter.slug}
+                index={index + 1}
+                project={entry.frontmatter}
+              />
             ))}
           </div>
-        </section>
-
-        <hr className="rule" />
-
-        <section aria-labelledby="recent-writing">
-          <p className="caps" id="recent-writing">
-            <span className="num">02</span>Recent writing
-          </p>
-          <div>
-            {recentWriting.slice(0, 4).map((entry) => (
-              <PostRow key={entry.frontmatter.slug} post={entry.frontmatter} />
-            ))}
-          </div>
-          <p className="mono" style={{ marginTop: "1.5rem" }}>
-            <Link href="/writing">all writing -&gt;</Link>
-          </p>
         </section>
       </div>
     </div>

@@ -4,24 +4,22 @@ This site is a Next.js app. Most public-facing information lives in either MDX c
 
 ## Quick Map
 
-| What you want to edit | File |
-| --- | --- |
-| Homepage name, headline, open-to line | `app/page.tsx` |
-| Homepage selected work list | `content/work/*.mdx` frontmatter |
-| Homepage recent writing list | `content/writing/*.mdx` frontmatter |
-| Work/case study body | `content/work/[slug].mdx` |
-| Blog post body | `content/writing/[slug].mdx` |
-| `/now` page | `app/now/page.tsx` |
-| `/uses` page | `app/uses/page.tsx` |
-| Top navigation | `components/Nav.tsx` |
-| Footer links/email/location | `components/Footer.tsx` |
-| Resume PDF | `public/resume.pdf` |
-| SEO defaults and site metadata | `app/layout.tsx` |
-| Per-page SEO metadata | Each `app/**/page.tsx` file |
-| Colors, spacing, typography, layout styles | `styles/globals.css` |
-| RSS feed output | `app/feed.xml/route.ts` |
-| Sitemap generation | `app/sitemap.ts` |
-| 404 page | `app/not-found.tsx` |
+| What you want to edit                      | File                             |
+| ------------------------------------------ | -------------------------------- |
+| Homepage intro and chatbot placement       | `app/page.tsx`                   |
+| Chatbot answer logic and suggested prompts | `components/PortfolioAgent.tsx`  |
+| Homepage selected work list                | `content/work/*.mdx` frontmatter |
+| Work/case study body                       | `content/work/[slug].mdx`        |
+| `/now` page                                | `app/now/page.tsx`               |
+| `/uses` page                               | `app/uses/page.tsx`              |
+| Top navigation                             | `components/Nav.tsx`             |
+| Footer links/email/location                | `components/Footer.tsx`          |
+| Resume PDF                                 | `public/resume.pdf`              |
+| SEO defaults and site metadata             | `app/layout.tsx`                 |
+| Per-page SEO metadata                      | Each `app/**/page.tsx` file      |
+| Colors, spacing, typography, layout styles | `styles/globals.css`             |
+| Sitemap generation                         | `app/sitemap.ts`                 |
+| 404 page                                   | `app/not-found.tsx`              |
 
 ## Homepage
 
@@ -34,10 +32,18 @@ The top text is here:
 <p className="lede">
   I build full-stack systems and data tools. Data Science <span className="muted">@ Waterloo</span>.
 </p>
-<p className="open">Open to Summer 2026 co-op - SWE, Data, ML.</p>
+<p className="open">Ask the site about my projects, stack, resume, or Summer 2026 co-op fit.</p>
 ```
 
-The homepage work section is not manually listed in `app/page.tsx`. It pulls from `content/work/*.mdx`.
+The chatbot component lives in:
+
+```text
+components/PortfolioAgent.tsx
+```
+
+Edit its `suggestedQuestions` array to change the visible prompt buttons. Edit `answerQuestion()` to add or refine local answers.
+
+The homepage work and chatbot project data are not manually listed in `app/page.tsx`. They pull from `content/work/*.mdx`.
 
 To show or hide a project on the homepage, edit the project frontmatter:
 
@@ -47,8 +53,6 @@ order: 1
 ```
 
 `featured: true` shows it. `order` controls the display order.
-
-The homepage writing section pulls the newest published posts from `content/writing/*.mdx`.
 
 ## Work / Case Studies
 
@@ -103,50 +107,6 @@ To add a new case study:
 4. Write the body below the frontmatter.
 5. Visit `/work/my-project`.
 
-## Writing / Blog Posts
-
-Each writing post lives in:
-
-```text
-content/writing/[slug].mdx
-```
-
-Current files:
-
-```text
-content/writing/spike-etl-pipeline.mdx
-content/writing/schema-validation-debugging.mdx
-content/writing/offline-first-truecost.mdx
-content/writing/rust-cli-distribution.mdx
-```
-
-Each file starts with frontmatter:
-
-```yaml
----
-title: "Designing SPIKE's ETL pipeline for unstructured publications"
-slug: "spike-etl-pipeline"
-date: "2026-04-12"
-description: "Schema validation, OpenAI structured outputs, and the tradeoffs of pipeline rigidity."
-draft: false
----
-```
-
-Important fields:
-
-- `title`: shown on the post page and writing lists.
-- `slug`: must match the filename.
-- `date`: controls reverse-chronological sorting.
-- `description`: shown in writing lists and RSS.
-- `draft`: set to `true` to hide from indexes, RSS, and static params.
-
-To add a post:
-
-1. Create `content/writing/my-post.mdx`.
-2. Set `slug: "my-post"`.
-3. Set `draft: false` when ready to publish.
-4. Visit `/writing/my-post`.
-
 ## Now Page
 
 Edit:
@@ -185,7 +145,7 @@ Top navigation:
 components/Nav.tsx
 ```
 
-Footer email, GitHub, LinkedIn, resume, RSS, and location:
+Footer email, GitHub, LinkedIn, resume, and location:
 
 ```text
 components/Footer.tsx
@@ -228,12 +188,6 @@ Work page metadata:
 app/work/[slug]/page.tsx
 ```
 
-Writing page metadata:
-
-```text
-app/writing/[slug]/page.tsx
-```
-
 The site URL comes from:
 
 ```text
@@ -267,8 +221,8 @@ Most page-level styling is class-based in this same file, including:
 - `.nav`
 - `.footer`
 - `.prose`
+- `.agent-card`
 - `.proj`
-- `.post-row`
 - `.meta-strip`
 - `.diagram`
 - `.uses-group`
@@ -293,11 +247,8 @@ Useful pages to check after editing:
 ```text
 /
 /work/spike
-/writing
-/writing/spike-etl-pipeline
 /now
 /uses
-/feed.xml
 ```
 
 ## Before Committing
