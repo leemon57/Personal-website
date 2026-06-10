@@ -4,22 +4,25 @@ This site is a Next.js app. Most public-facing information lives in either MDX c
 
 ## Quick Map
 
-| What you want to edit                      | File                             |
-| ------------------------------------------ | -------------------------------- |
-| Homepage intro and chatbot placement       | `app/page.tsx`                   |
-| Chatbot answer logic and suggested prompts | `components/PortfolioAgent.tsx`  |
-| Homepage selected work list                | `content/work/*.mdx` frontmatter |
-| Work/case study body                       | `content/work/[slug].mdx`        |
-| `/now` page                                | `app/now/page.tsx`               |
-| `/uses` page                               | `app/uses/page.tsx`              |
-| Top navigation                             | `components/Nav.tsx`             |
-| Footer links/email/location                | `components/Footer.tsx`          |
-| Resume PDF                                 | `public/resume.pdf`              |
-| SEO defaults and site metadata             | `app/layout.tsx`                 |
-| Per-page SEO metadata                      | Each `app/**/page.tsx` file      |
-| Colors, spacing, typography, layout styles | `styles/globals.css`             |
-| Sitemap generation                         | `app/sitemap.ts`                 |
-| 404 page                                   | `app/not-found.tsx`              |
+| What you want to edit                      | File                                                  |
+| ------------------------------------------ | ----------------------------------------------------- |
+| Homepage intro and chatbot placement       | `app/page.tsx`                                        |
+| `/about` page                              | `app/about/page.tsx`                                  |
+| `/contact` page and contact form           | `app/contact/page.tsx` and `components/ContactForm.tsx` |
+| Contact form email API                     | `app/api/contact/route.ts` and `.env.example`         |
+| Chatbot suggested prompts                  | `components/PortfolioAgent.tsx`                       |
+| Chatbot answer logic and source facts      | `lib/portfolio-agent.ts` and `app/api/agent/route.ts` |
+| Shared profile facts                       | `lib/profile.ts`                                      |
+| Personal project case studies              | `content/projects/[slug].mdx`                         |
+| Work experience case studies               | `content/work/[slug].mdx`                             |
+| Top navigation                             | `components/Nav.tsx`                                  |
+| Footer links/email/location                | `components/Footer.tsx`                               |
+| Resume PDF                                 | `public/resume.pdf`                                   |
+| SEO defaults and site metadata             | `app/layout.tsx`                                      |
+| Per-page SEO metadata                      | Each `app/**/page.tsx` file                           |
+| Colors, spacing, typography, layout styles | `styles/globals.css`                                  |
+| Sitemap generation                         | `app/sitemap.ts`                                      |
+| 404 page                                   | `app/not-found.tsx`                                   |
 
 ## Homepage
 
@@ -32,7 +35,7 @@ The top text is here:
 <p className="lede">
   I build full-stack systems and data tools. Data Science <span className="muted">@ Waterloo</span>.
 </p>
-<p className="open">Ask the site about my projects, stack, resume, or Summer 2026 co-op fit.</p>
+<p className="open">Ask the site about my projects, stack, resume, or Winter 2027 co-op fit.</p>
 ```
 
 The chatbot component lives in:
@@ -41,22 +44,70 @@ The chatbot component lives in:
 components/PortfolioAgent.tsx
 ```
 
-Edit its `suggestedQuestions` array to change the visible prompt buttons. Edit `answerQuestion()` to add or refine local answers.
+Edit its `suggestedQuestions` array to change the visible prompt buttons. Edit `lib/portfolio-agent.ts` to add or refine deterministic local answers, and update `app/api/agent/route.ts` when Gemini needs new source documents to cite.
 
-The homepage work and chatbot project data are not manually listed in `app/page.tsx`. They pull from `content/work/*.mdx`.
+The chatbot project data is not manually listed in `app/page.tsx`. It pulls from `content/projects/*.mdx` and `content/work/*.mdx`.
 
-To show or hide a project on the homepage, edit the project frontmatter:
+To show or hide a project in featured lists, edit the project frontmatter:
 
 ```yaml
 featured: true
 order: 1
 ```
 
-`featured: true` shows it. `order` controls the display order.
+`featured: true` marks it as featured. `order` controls the display order.
+
+## About
+
+Edit shared profile facts in:
+
+```text
+lib/profile.ts
+```
+
+The `/about` page lives in:
+
+```text
+app/about/page.tsx
+```
+
+## Contact
+
+The contact page lives in:
+
+```text
+app/contact/page.tsx
+```
+
+The reusable form component lives in:
+
+```text
+components/ContactForm.tsx
+```
+
+The server route that sends email lives in:
+
+```text
+app/api/contact/route.ts
+```
+
+Email delivery uses Resend. Configure these variables in `.env.local` and Vercel:
+
+```text
+RESEND_API_KEY
+CONTACT_TO_EMAIL
+CONTACT_FROM_EMAIL
+```
 
 ## Work / Case Studies
 
-Each case study lives in:
+Personal project case studies live in:
+
+```text
+content/projects/[slug].mdx
+```
+
+Formal work-experience write-ups live in:
 
 ```text
 content/work/[slug].mdx
@@ -65,10 +116,10 @@ content/work/[slug].mdx
 Current files:
 
 ```text
-content/work/spike.mdx
-content/work/truecost.mdx
-content/work/christ-city.mdx
-content/work/logbook.mdx
+content/projects/spike.mdx
+content/projects/tickermate.mdx
+content/projects/truecost.mdx
+content/projects/starrail-script.mdx
 ```
 
 Each file starts with frontmatter:
@@ -78,12 +129,13 @@ Each file starts with frontmatter:
 title: "SPIKE - AI research dashboard"
 subtitle: "Short homepage and page subtitle."
 slug: "spike"
+category: "personal project"
 date: "2025-10-15"
 status: "shipped"
 role: "Full-stack"
 timeline: "Oct 2025 / 36 hrs"
 stack: ["React", "Next.js", "Flask", "Postgres", "OpenAI"]
-repo: "https://github.com/HanyJiang/spike"
+repo: "https://github.com/leemon57/your-project-repo"
 featured: true
 order: 1
 ---
@@ -94,6 +146,7 @@ Important fields:
 - `title`: shown on the work page and project cards.
 - `subtitle`: shown under the title and on homepage/work teasers.
 - `slug`: must match the filename. `spike.mdx` should use `slug: "spike"`.
+- `category`: use `"personal project"` for `content/projects` and `"work experience"` for `content/work`.
 - `date`: used for sitemap freshness and sorting fallback.
 - `status`, `role`, `timeline`, `stack`, `repo`, `demo`: shown in the metadata strip.
 - `featured`: whether it appears on the homepage.
@@ -101,41 +154,11 @@ Important fields:
 
 To add a new case study:
 
-1. Create `content/work/my-project.mdx`.
+1. Create `content/projects/my-project.mdx` for a personal project, or `content/work/my-role.mdx` for work experience.
 2. Set `slug: "my-project"`.
 3. Add the frontmatter fields above.
 4. Write the body below the frontmatter.
-5. Visit `/work/my-project`.
-
-## Now Page
-
-Edit:
-
-```text
-app/now/page.tsx
-```
-
-This page is currently hardcoded because it is short and should be updated monthly. Edit the date, location, and the three sections:
-
-- Working on
-- Learning
-- Reading
-
-## Uses Page
-
-Edit:
-
-```text
-app/uses/page.tsx
-```
-
-The data is the `sections` array near the top of the file. Each section has a title and key/value rows.
-
-Example:
-
-```tsx
-{ title: "Editor", items: [["Neovim", "LazyVim config"], ["VS Code", "MDX and notebooks"]] }
-```
+5. Visit `/projects/my-project` for personal projects or `/work/my-role` for work experience.
 
 ## Nav And Footer
 
@@ -145,10 +168,10 @@ Top navigation:
 components/Nav.tsx
 ```
 
-Footer email, GitHub, LinkedIn, resume, and location:
+Footer email, GitHub, LinkedIn, resume, and location are driven by:
 
 ```text
-components/Footer.tsx
+lib/profile.ts
 ```
 
 Replace placeholder URLs there if your GitHub, LinkedIn, or email changes.
@@ -186,6 +209,7 @@ Work page metadata:
 
 ```text
 app/work/[slug]/page.tsx
+app/projects/[slug]/page.tsx
 ```
 
 The site URL comes from:
@@ -225,7 +249,6 @@ Most page-level styling is class-based in this same file, including:
 - `.proj`
 - `.meta-strip`
 - `.diagram`
-- `.uses-group`
 - `.fourohfour`
 
 ## Local Preview
@@ -246,9 +269,10 @@ Useful pages to check after editing:
 
 ```text
 /
-/work/spike
-/now
-/uses
+/projects/spike
+/about
+/projects
+/work
 ```
 
 ## Before Committing

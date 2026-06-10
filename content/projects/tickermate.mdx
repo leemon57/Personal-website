@@ -1,0 +1,117 @@
+---
+title: "Tickermate - Discord market data bot"
+subtitle: "Serverless Discord bot for market and macro data. It uses Discord slash commands, AWS Lambda, DynamoDB caching, Massive, Binance, Marketaux, SEC RSS, and Federal Reserve feeds without running an always-on gateway process."
+slug: "tickermate"
+category: "personal project"
+date: "2026-04-11"
+status: "complete"
+role: "Solo build"
+timeline: "2025 / 2026"
+stack: ["Python", "AWS Lambda", "DynamoDB", "Discord API", "AWS SAM", "Matplotlib"]
+repo: "https://github.com/leemon57/TickerMate_Discord_bot"
+featured: true
+order: 2
+---
+
+<p className="caps">The problem</p>
+
+Most Discord bots are built like long-running apps: connect to the gateway, keep a process alive, and hope the host stays up. That is a poor fit for a slash-command finance bot where most interactions are short, bursty, and request-driven.
+
+Tickermate takes the opposite path. It is a Lambda-first Discord application for stocks, indices, FX, crypto, market news, and Federal Reserve information. The bot is intentionally information-only: no trading recommendations, no AI commentary, and no strategy generation. Every response is shaped around source, freshness, and whether the data is delayed, end-of-day, historical, real-time, market, macro, or official.
+
+<p className="caps">My role</p>
+
+As a solo build, I focused the project around backend and platform engineering: Discord interaction handling, command routing, provider integrations, caching, response formatting, chart rendering, and AWS deployment structure.
+
+The repo is organized around production boundaries instead of bot-framework convenience. Discord signature verification happens at the Lambda edge, fast commands return immediately, slow commands defer, and provider-specific code is separated from formatting and command execution.
+
+<p className="caps">System design</p>
+
+<figure className="fig">
+  <svg viewBox="0 0 680 320" className="diagram" role="img" aria-label="Tickermate webhook fork architecture diagram">
+    <text x="18" y="30" className="label-faint">DISCORD</text>
+    <text x="336" y="52" className="label-faint">FAST PATH</text>
+    <text x="336" y="164" className="label-faint">DEFERRED PATH</text>
+    <text x="524" y="128" className="label-faint">WORKERS</text>
+
+    <rect className="node-soft" x="18" y="132" width="120" height="56" rx="4" />
+    <text x="78" y="156" textAnchor="middle">Slash command</text>
+    <text x="78" y="172" textAnchor="middle">interaction</text>
+
+    <rect className="node accent" x="170" y="130" width="128" height="60" rx="4" style={{ strokeWidth: 1.5 }} />
+    <text x="234" y="156" textAnchor="middle">Function URL</text>
+    <text x="234" y="172" textAnchor="middle">signature gate</text>
+
+    <rect className="node" x="336" y="66" width="150" height="52" rx="4" />
+    <text x="411" y="88" textAnchor="middle">Fast command</text>
+    <text x="411" y="104" textAnchor="middle">immediate reply</text>
+
+    <rect className="node" x="336" y="176" width="150" height="52" rx="4" />
+    <text x="411" y="198" textAnchor="middle">Deferred route</text>
+    <text x="411" y="214" textAnchor="middle">ack under 3 sec</text>
+
+    <rect className="node-soft" x="524" y="140" width="140" height="42" rx="4" />
+    <text x="594" y="165" textAnchor="middle">Command worker</text>
+
+    <rect className="node-soft" x="524" y="196" width="140" height="42" rx="4" />
+    <text x="594" y="221" textAnchor="middle">Chart worker</text>
+
+    <rect className="node-soft" x="524" y="252" width="140" height="42" rx="4" />
+    <text x="594" y="277" textAnchor="middle">Feed refresh</text>
+
+    <path className="arrow" d="M138 160 L170 160" markerEnd="url(#tm-ah)" />
+    <path className="arrow" d="M298 150 L336 92" markerEnd="url(#tm-ah)" />
+    <path className="arrow" d="M298 176 L336 202" markerEnd="url(#tm-ah)" />
+    <path className="arrow" d="M486 192 L524 161" markerEnd="url(#tm-ah)" />
+    <path className="arrow" d="M486 202 L524 217" markerEnd="url(#tm-ah)" />
+    <path className="arrow" d="M486 214 L524 273" markerEnd="url(#tm-ah)" />
+
+    <defs>
+      <marker id="tm-ah" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+        <path d="M0,0 L6,4 L0,8" fill="none" stroke="currentColor" strokeWidth="1" />
+      </marker>
+    </defs>
+  </svg>
+  <figcaption>
+    Tickermate uses Discord's webhook model, not a persistent gateway. Every interaction hits the Function URL signature gate, which forks: fast commands reply immediately, while slow commands defer and continue in worker Lambdas that post follow-ups and refresh the cache.
+  </figcaption>
+</figure>
+
+The production path is split across four Lambda handlers. `interactions_handler` receives Discord interactions through a Lambda Function URL, preserves the raw body for Ed25519 signature verification, handles Discord `PING`, and routes application commands. Fast routes reply directly. Deferred routes invoke `command_worker`, which posts follow-up responses through Discord's interaction webhook.
+
+Charts are isolated in `chart_worker`, a container-image Lambda with Matplotlib dependencies kept out of the lightweight interaction package. Official news is handled separately by `feed_refresh`, which refreshes SEC, Federal Reserve, and curated issuer RSS feeds into DynamoDB.
+
+<p className="caps">Key technical decisions</p>
+
+- **Function URL over gateway bot.** A slash-command-only bot does not need a permanent Discord gateway connection. Lambda Function URLs keep the deployment cheap, request-driven, and easier to operate.
+- **Immediate versus deferred command routing.** Quote and Fed commands can reply immediately. Charts, news aggregation, and corporate actions defer so Discord gets an acknowledgement inside the response window.
+- **Provider adapters and DTOs.** Massive, Binance, Marketaux, Federal Reserve, and RSS providers normalize into typed records such as `QuoteSnapshot`, `BarSeries`, `NewsItem`, `MacroRate`, and `CalendarEvent`.
+- **Freshness as product behavior.** Non-crypto market data is labeled `EOD`, `historical`, or `delayed`; Binance crypto data is labeled `real-time`; Fed and RSS data is marked official where appropriate.
+- **DynamoDB TTL cache.** Stocks, indices, FX, Fed, and official feeds cache for 15 minutes; Binance crypto paths cache for 10 seconds; Marketaux news caches for 30 minutes to protect the free quota.
+
+<p className="caps">Results</p>
+
+<figure className="fig">
+  <div className="frame">
+    <img
+      className="case-image"
+      src="/work/tickermate-discord.png"
+      alt="Tickermate Discord slash command response"
+    />
+  </div>
+  <figcaption>
+    Tickermate runs as Discord slash commands, with compact responses that show market data, source, and freshness metadata.
+  </figcaption>
+</figure>
+
+The repo implements 18 default slash-command routes across `stock`, `index`, `fx`, `crypto`, `news`, and `fed`, with four additional options/futures routes feature-gated off by default. It supports stock quotes, charts, corporate actions, stock news, index quote/chart, FX quote/chart/convert, crypto quote/chart/funding/open interest/news, general symbol news, Fed rate, next FOMC date, and FOMC calendar.
+
+The deployment is described in AWS SAM: one public interaction Lambda Function URL, one async command worker, one scheduled feed refresh worker, one containerized chart worker, and one DynamoDB cache table with TTL. The repo also includes tests for Discord signature verification, route parsing, feature-gated command manifest generation, Fed rate parsing, and FOMC calendar parsing.
+
+<p className="caps">What I would do differently</p>
+
+I would add a small local integration harness for end-to-end command simulation. The unit tests cover important pieces, but a fake Discord interaction runner would make it easier to test fast replies, deferred replies, worker payloads, and webhook follow-ups together.
+
+I would also add production failure handling around async paths. Direct Lambda invocation is simple for v1, but a queue or dead-letter path would make retries and failed chart/news jobs easier to inspect once the bot has real users.
+
+Finally, I would expand provider fixtures. Market and macro APIs change shape over time, and snapshot tests around Massive, Binance, Marketaux, and Federal Reserve responses would make refactors safer without burning API quota.

@@ -5,10 +5,18 @@ import { getReadingTime } from "@/lib/reading-time";
 
 const contentRoot = path.join(process.cwd(), "content");
 
+const contentFolders = [
+  { directory: "projects", defaultCategory: "personal project" },
+  { directory: "work", defaultCategory: "work experience" },
+] as const;
+
+type ContentDirectory = (typeof contentFolders)[number]["directory"];
+
 export interface WorkFrontmatter {
   title: string;
   subtitle: string;
   slug: string;
+  category: string;
   date: string;
   status: string;
   role: string;
@@ -24,6 +32,14 @@ export interface ContentEntry<TFrontmatter> {
   frontmatter: TFrontmatter;
   body: string;
   readingTime: string;
+}
+
+export function getCaseStudyHref(
+  entry: Pick<WorkFrontmatter, "category" | "slug">,
+): string {
+  return entry.category.toLowerCase() === "work experience"
+    ? `/work/${entry.slug}`
+    : `/projects/${entry.slug}`;
 }
 
 function readString(data: Record<string, unknown>, key: string): string {
@@ -64,25 +80,48 @@ function readStringArray(data: Record<string, unknown>, key: string): string[] {
     : [];
 }
 
-async function readMdxFile(slug: string): Promise<matter.GrayMatterFile<string>> {
-  const filePath = path.join(contentRoot, "work", `${slug}.mdx`);
+async function readMdxFile(
+  directory: ContentDirectory,
+  slug: string,
+): Promise<matter.GrayMatterFile<string>> {
+  const filePath = path.join(contentRoot, directory, `${slug}.mdx`);
   const raw = await fs.readFile(filePath, "utf8");
   return matter(raw);
 }
 
-async function listWorkSlugs(): Promise<string[]> {
-  const directoryPath = path.join(contentRoot, "work");
-  const entries = await fs.readdir(directoryPath, { withFileTypes: true });
-  return entries
-    .filter((entry) => entry.isFile() && entry.name.endsWith(".mdx"))
-    .map((entry) => entry.name.replace(/\.mdx$/u, ""));
+async function listContentFiles(): Promise<
+  Array<{
+    directory: ContentDirectory;
+    slug: string;
+    defaultCategory: string;
+  }>
+> {
+  const fileGroups = await Promise.all(
+    contentFolders.map(async (folder) => {
+      const directoryPath = path.join(contentRoot, folder.directory);
+      const entries = await fs.readdir(directoryPath, { withFileTypes: true });
+      return entries
+        .filter((entry) => entry.isFile() && entry.name.endsWith(".mdx"))
+        .map((entry) => ({
+          directory: folder.directory,
+          slug: entry.name.replace(/\.mdx$/u, ""),
+          defaultCategory: folder.defaultCategory,
+        }));
+    }),
+  );
+
+  return fileGroups.flat();
 }
 
-function parseWork(data: Record<string, unknown>): WorkFrontmatter {
+function parseWork(
+  data: Record<string, unknown>,
+  defaultCategory: string,
+): WorkFrontmatter {
   return {
     title: readString(data, "title"),
     subtitle: readString(data, "subtitle"),
     slug: readString(data, "slug"),
+    category: readString(data, "category") || defaultCategory,
     date: readString(data, "date"),
     status: readString(data, "status"),
     role: readString(data, "role"),
@@ -100,10 +139,33 @@ function parseWork(data: Record<string, unknown>): WorkFrontmatter {
  */
 export async function getWorkBySlug(
   slug: string,
+  category?: string,
 ): Promise<ContentEntry<WorkFrontmatter>> {
-  const file = await readMdxFile(slug);
+  const files = await listContentFiles();
+  const normalizedCategory = category?.toLowerCase();
+  const match = files.find(
+    (file) =>
+      file.slug === slug &&
+      (!normalizedCategory ||
+        file.defaultCategory.toLowerCase() === normalizedCategory),
+  );
+
+  if (!match) {
+    throw new Error(`Unknown work slug: ${slug}`);
+  }
+
+  const file = await readMdxFile(match.directory, slug);
+  const frontmatter = parseWork(file.data, match.defaultCategory);
+
+  if (
+    normalizedCategory &&
+    frontmatter.category.toLowerCase() !== normalizedCategory
+  ) {
+    throw new Error(`Unknown ${category} slug: ${slug}`);
+  }
+
   return {
-    frontmatter: parseWork(file.data),
+    frontmatter,
     body: file.content,
     readingTime: getReadingTime(file.content),
   };
@@ -113,8 +175,17 @@ export async function getWorkBySlug(
  * Reads all case studies, sorted by explicit order and then by newest date.
  */
 export async function getAllWork(): Promise<Array<ContentEntry<WorkFrontmatter>>> {
-  const slugs = await listWorkSlugs();
-  const entries = await Promise.all(slugs.map((slug) => getWorkBySlug(slug)));
+  const files = await listContentFiles();
+  const entries = await Promise.all(
+    files.map(async (item) => {
+      const file = await readMdxFile(item.directory, item.slug);
+      return {
+        frontmatter: parseWork(file.data, item.defaultCategory),
+        body: file.content,
+        readingTime: getReadingTime(file.content),
+      };
+    }),
+  );
   return entries.sort((a, b) => {
     const orderDelta = a.frontmatter.order - b.frontmatter.order;
     if (orderDelta !== 0) {
@@ -122,4 +193,22 @@ export async function getAllWork(): Promise<Array<ContentEntry<WorkFrontmatter>>
     }
     return b.frontmatter.date.localeCompare(a.frontmatter.date);
   });
+}
+
+export async function getPersonalProjects(): Promise<
+  Array<ContentEntry<WorkFrontmatter>>
+> {
+  const entries = await getAllWork();
+  return entries.filter(
+    (entry) => entry.frontmatter.category.toLowerCase() === "personal project",
+  );
+}
+
+export async function getWorkExperience(): Promise<
+  Array<ContentEntry<WorkFrontmatter>>
+> {
+  const entries = await getAllWork();
+  return entries.filter(
+    (entry) => entry.frontmatter.category.toLowerCase() === "work experience",
+  );
 }

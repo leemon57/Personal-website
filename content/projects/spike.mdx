@@ -1,0 +1,132 @@
+---
+title: "SPIKE - NASA research explorer"
+subtitle: "NASA Space Apps 2025 prototype for exploring 607 space-biology publications. Built by a six-person team, it combines PMC metadata, tag filtering, timeline and subject-tree views, and a Flask/OpenAI summarizer."
+slug: "spike"
+category: "personal project"
+date: "2025-10-15"
+status: "prototype"
+role: "Backend / AI + visualization"
+timeline: "NASA Space Apps 2025"
+stack: ["Next.js", "React", "Material UI", "Flask", "OpenAI", "BeautifulSoup"]
+featured: true
+order: 1
+---
+
+<p className="caps">The problem</p>
+
+Space-biology research is spread across long academic papers, metadata tables, and subject tags that are useful only after you already know what to search for. For NASA Space Apps 2025, the interesting problem was not building another text box. It was turning a corpus of space-related publications into something a researcher could scan, filter, and summarize quickly.
+
+SPIKE does that by combining a static publication dataset with live article summarization. The app lets a user browse 607 PMC-linked papers, narrow them by title, PMID, date, and subject tags, switch between table, timeline, and subject-tree views, then request an AI summary for a selected paper.
+
+<p className="caps">My role</p>
+
+On a six-person team, I mainly worked on the backend and AI layer: the Flask summary endpoint, article downloader, HTML section extraction, prompt construction, and OpenAI response contract for summaries, key findings, limitations, and future directions.
+
+I also contributed to the frontend where the research experience needed motion and feedback, including the summary speed slider and the animated globe scene. That gave the prototype a stronger first impression while keeping the core work focused on the research pipeline.
+
+<p className="caps">System design</p>
+
+<figure className="fig">
+  <svg viewBox="0 0 680 300" className="diagram" role="img" aria-label="SPIKE browse versus live-AI architecture diagram">
+    <text x="20" y="80" className="label-faint">STATIC DATA</text>
+    <text x="410" y="40" className="label-faint">VIEW MODES</text>
+    <text x="210" y="216" className="label-faint">LIVE AI</text>
+
+    <rect className="node-soft" x="20" y="92" width="140" height="56" rx="4" />
+    <text x="90" y="115" textAnchor="middle">Static JSON</text>
+    <text x="90" y="131" textAnchor="middle">607 papers + tags</text>
+
+    <rect className="node accent" x="210" y="106" width="140" height="64" rx="4" style={{ strokeWidth: 1.5 }} />
+    <text x="280" y="133" textAnchor="middle">Dashboard</text>
+    <text x="280" y="149" textAnchor="middle">Next.js + MUI</text>
+
+    <rect className="node" x="410" y="52" width="120" height="40" rx="4" />
+    <text x="470" y="76" textAnchor="middle">table</text>
+
+    <rect className="node" x="410" y="104" width="120" height="40" rx="4" />
+    <text x="470" y="128" textAnchor="middle">timeline</text>
+
+    <rect className="node" x="410" y="156" width="120" height="40" rx="4" />
+    <text x="470" y="180" textAnchor="middle">subject tree</text>
+
+    <rect className="node" x="210" y="224" width="150" height="52" rx="4" />
+    <text x="285" y="246" textAnchor="middle">Flask</text>
+    <text x="285" y="262" textAnchor="middle">/get_summary</text>
+
+    <rect className="node" x="400" y="224" width="110" height="52" rx="4" />
+    <text x="455" y="254" textAnchor="middle">OpenAI</text>
+
+    <rect className="node-soft" x="548" y="224" width="120" height="52" rx="4" />
+    <text x="608" y="246" textAnchor="middle">summary +</text>
+    <text x="608" y="262" textAnchor="middle">key findings</text>
+
+    <path className="arrow" d="M160 120 L210 134" markerEnd="url(#spike-ah)" />
+    <path className="arrow" d="M350 130 L410 72" markerEnd="url(#spike-ah)" />
+    <path className="arrow" d="M350 138 L410 124" markerEnd="url(#spike-ah)" />
+    <path className="arrow" d="M350 146 L410 176" markerEnd="url(#spike-ah)" />
+    <path className="arrow dash" d="M282 170 L282 224" markerEnd="url(#spike-ah)" />
+    <text x="296" y="200" className="label-faint">select paper</text>
+    <path className="arrow" d="M360 250 L400 250" markerEnd="url(#spike-ah)" />
+    <path className="arrow" d="M510 250 L548 250" markerEnd="url(#spike-ah)" />
+
+    <defs>
+      <marker id="spike-ah" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+        <path d="M0,0 L6,4 L0,8" fill="none" stroke="currentColor" strokeWidth="1" />
+      </marker>
+    </defs>
+  </svg>
+  <figcaption>
+    SPIKE splits into a fast path and a slow path. Static JSON drives the dashboard and its table, timeline, and subject-tree views with no server; selecting a paper triggers the slower live path - Flask extracts the article and calls OpenAI for a structured summary.
+  </figcaption>
+</figure>
+
+The frontend is a Next.js app built with Material UI. It loads publication, tag, summary, and subject-tree JSON files directly into React components, which keeps the browse experience fast and avoids needing a database during the prototype window.
+
+The backend is a small Flask service. A selected title hits `/get_summary/<title>`, downloads the matching PMC article HTML, extracts article sections with BeautifulSoup, builds a constrained prompt, and asks OpenAI for strict JSON with `summary`, `key_findings`, `limitations`, and `future_directions`. I owned this backend and AI flow during the prototype.
+
+<p className="caps">Key technical decisions</p>
+
+- **Static JSON for the browse path.** The project ships the 607-publication dataset, 99 tag options, and subject-tree artifact as local JSON. That made the main UI reliable even while the AI path was still being wired up.
+- **One data shape across views.** The same filtered publication rows drive the table, timeline, and subject tree. That kept filtering behavior consistent and made the visualization modes feel connected instead of separate demos.
+- **Section extraction before LLM calls.** The summarizer does not send raw page HTML to the model. It extracts relevant article sections first, which reduces prompt noise and keeps the summary prompt focused.
+- **Structured output prompt.** The AI prompt asks for strict JSON with a small schema. The next step is server-side validation, but the prototype already established the response contract the UI expects.
+
+<p className="caps">Results</p>
+
+<figure className="fig">
+  <div className="frame">
+    <img
+      className="case-image"
+      src="/work/spike-dashboard.png"
+      alt="SPIKE dashboard with publication table, search controls, and AI summary panel"
+    />
+  </div>
+  <figcaption>
+    The main dashboard: searchable publication table on the left, AI summary panel on the right, and view controls for results, timeline, and subject tree.
+  </figcaption>
+</figure>
+
+<figure className="fig">
+  <div className="frame">
+    <img
+      className="case-image"
+      src="/work/spike-globe.png"
+      alt="Animated SPIKE globe visualization with starfield background"
+    />
+  </div>
+  <figcaption>
+    The globe scene gave the prototype a stronger space-research identity and made the demo feel less like a plain data table.
+  </figcaption>
+</figure>
+
+The repo contains a working NASA Space Apps 2025 prototype shape: searchable and paginated publication browsing, advanced filters for title, link, PMID, date, included tags, excluded tags, and AND/OR tag logic, plus timeline and subject-tree views over the same corpus.
+
+The data artifacts are concrete enough to talk about: 607 publication records, 99 unique tag options, a 166-node subject tree, and a first 40-row summary subset for the frontend. The AI summary panel includes loading/error states, a typewriter-style summary display, speed control, bookmark affordance, JSON download support, and a direct "Open Article" link. I also helped with the globe visualization that gives the page its space-research feel.
+
+<p className="caps">What I would do differently</p>
+
+I would replace the title-in-path summary endpoint with a POST endpoint that accepts a PMC ID. A long academic title in a URL is fragile, and PMC ID is already present in the dataset.
+
+I would also make the extraction pipeline article-safe. The current backend writes to shared temporary files like `raw_temparticle.html` and `extracted_temparticle.json`, which is fine for a local demo but not safe for concurrent requests. A per-PMC cache would make the system easier to debug and faster after the first request.
+
+Finally, I would harden the AI boundary before presenting this as more than a prototype: validate model JSON on the server, treat article text as untrusted input, add clearer failure states for malformed responses, and remove hardcoded local URLs between the frontend and Flask service.

@@ -1,10 +1,10 @@
 import type { MetadataRoute } from "next";
-import { getAllWork } from "@/lib/content";
+import { getAllWork, getCaseStudyHref } from "@/lib/content";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://hanyjiang.com";
   const work = await getAllWork();
-  const staticRoutes = ["", "/work", "/now", "/uses"].map((route) => ({
+  const staticRoutes = ["", "/about", "/contact", "/projects", "/work"].map((route) => ({
     url: `${siteUrl}${route}`,
     lastModified: new Date(),
   }));
@@ -12,7 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...staticRoutes,
     ...work.map((entry) => ({
-      url: `${siteUrl}/work/${entry.frontmatter.slug}`,
+      url: `${siteUrl}${getCaseStudyHref(entry.frontmatter)}`,
       lastModified: new Date(entry.frontmatter.date),
     })),
   ];

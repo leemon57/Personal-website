@@ -1,12 +1,12 @@
 import Link from "next/link";
-import type { WorkFrontmatter } from "@/lib/content";
+import { getCaseStudyHref, type WorkFrontmatter } from "@/lib/content";
 
 /**
  * ProjectCard
  *
- * Renders a homepage or work-index teaser for a case study.
+ * Renders a project or work-experience teaser for a case study.
  *
- * Used by: app/page.tsx, app/work/page.tsx
+ * Used by: app/projects/page.tsx, app/work/page.tsx
  */
 export interface ProjectCardProps {
   project: WorkFrontmatter;
@@ -14,16 +14,18 @@ export interface ProjectCardProps {
 }
 
 export function ProjectCard({ project, index }: ProjectCardProps) {
+  const href = getCaseStudyHref(project);
+
   return (
     <article className="proj">
       <div className="idx">{String(index ?? project.order).padStart(2, "0")}</div>
       <div>
         <h3>
-          <Link href={`/work/${project.slug}`}>{project.title}</Link>
+          <Link href={href}>{project.title}</Link>
         </h3>
         <p>{project.subtitle}</p>
         <p className="stack">{project.stack.join(" / ")}</p>
-        <Link className="more" href={`/work/${project.slug}`}>
+        <Link className="more" href={href}>
           read the case study -&gt;
         </Link>
       </div>

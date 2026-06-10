@@ -1,0 +1,118 @@
+---
+title: "HSR Dashboard - HoYoLab desktop companion"
+subtitle: "Python desktop utility for Honkai: Star Rail account chores. It wraps HoYoLab endpoints in a CustomTkinter app for stamina tracking, daily check-in, character browsing, code redemption, scheduled refresh, local caching, and a one-file Windows build."
+slug: "starrail-script"
+category: "personal project"
+date: "2026-04-11"
+status: "complete"
+role: "Solo build"
+timeline: "2026"
+stack: ["Python", "CustomTkinter", "Requests", "Schedule", "PyInstaller"]
+featured: true
+order: 6
+---
+
+<p className="caps">The problem</p>
+
+Honkai: Star Rail has several useful account surfaces, but they are spread across game menus, HoYoLab pages, reward pages, and redemption forms. The information is simple individually: stamina, daily reward status, characters, expeditions, and codes. The friction comes from checking all of it manually and repeating the same small actions every day.
+
+HSR Dashboard turns those repeated checks into a desktop companion. Instead of opening multiple pages, the app gives one Windows GUI for Trailblaze Power, daily check-in, character roster browsing, and single or batch redemption codes.
+
+<p className="caps">My role</p>
+
+This was a solo build. I wrote the HoYoLab API client, request signing headers, local config/cache handling, background scheduler, CustomTkinter interface, and PyInstaller packaging script.
+
+The main engineering work was making a personal automation tool behave like a small product: setup flow, UID detection, tab navigation, loading states, error handling, auth-expired prompts, background refresh, and a distributable executable.
+
+<p className="caps">System design</p>
+
+<figure className="fig">
+  <svg viewBox="0 0 680 300" className="diagram" role="img" aria-label="HSR Dashboard funnel architecture diagram">
+    <text x="22" y="30" className="label-faint">DESKTOP TABS</text>
+    <text x="252" y="30" className="label-faint">API CLIENT</text>
+    <text x="560" y="30" className="label-faint">HOYOLAB</text>
+
+    <rect className="node" x="22" y="44" width="118" height="40" rx="4" />
+    <text x="81" y="68" textAnchor="middle">Stamina</text>
+
+    <rect className="node" x="22" y="98" width="118" height="40" rx="4" />
+    <text x="81" y="122" textAnchor="middle">Check-In</text>
+
+    <rect className="node" x="22" y="152" width="118" height="40" rx="4" />
+    <text x="81" y="176" textAnchor="middle">Characters</text>
+
+    <rect className="node" x="22" y="206" width="118" height="40" rx="4" />
+    <text x="81" y="230" textAnchor="middle">Redeem</text>
+
+    <rect className="node accent" x="236" y="120" width="130" height="66" rx="4" style={{ strokeWidth: 1.5 }} />
+    <text x="301" y="148" textAnchor="middle">HSRClient</text>
+    <text x="301" y="164" textAnchor="middle">requests + DS</text>
+
+    <rect className="node-soft" x="236" y="214" width="130" height="46" rx="4" />
+    <text x="301" y="234" textAnchor="middle">local config</text>
+    <text x="301" y="250" textAnchor="middle">JSON cache</text>
+
+    <rect className="node-soft" x="534" y="44" width="124" height="40" rx="4" />
+    <text x="596" y="68" textAnchor="middle">game record</text>
+
+    <rect className="node-soft" x="534" y="98" width="124" height="40" rx="4" />
+    <text x="596" y="122" textAnchor="middle">daily check-in</text>
+
+    <rect className="node-soft" x="534" y="152" width="124" height="40" rx="4" />
+    <text x="596" y="176" textAnchor="middle">redeem code</text>
+
+    <rect className="node-soft" x="534" y="206" width="124" height="40" rx="4" />
+    <text x="596" y="230" textAnchor="middle">roster index</text>
+
+    <path className="arrow" d="M140 64 L236 150" markerEnd="url(#hsr-ah)" />
+    <path className="arrow" d="M140 118 L236 152" markerEnd="url(#hsr-ah)" />
+    <path className="arrow" d="M140 172 L236 154" markerEnd="url(#hsr-ah)" />
+    <path className="arrow" d="M140 226 L236 156" markerEnd="url(#hsr-ah)" />
+
+    <path className="arrow" d="M366 150 L534 64" markerEnd="url(#hsr-ah)" />
+    <path className="arrow" d="M366 152 L534 118" markerEnd="url(#hsr-ah)" />
+    <path className="arrow" d="M366 154 L534 172" markerEnd="url(#hsr-ah)" />
+    <path className="arrow" d="M366 156 L534 226" markerEnd="url(#hsr-ah)" />
+
+    <path className="arrow" d="M301 186 L301 214" />
+
+    <path className="arrow dash" d="M285 120 C 279 84, 323 84, 317 120" markerEnd="url(#hsr-ah)" />
+    <text x="301" y="76" textAnchor="middle" className="label-faint">scheduled refresh</text>
+
+    <defs>
+      <marker id="hsr-ah" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+        <path d="M0,0 L6,4 L0,8" fill="none" stroke="currentColor" strokeWidth="1" />
+      </marker>
+    </defs>
+  </svg>
+  <figcaption>
+    Every tab funnels through one shared `HSRClient`, which signs each request and calls the matching HoYoLab endpoint, then fans the results back. A scheduled-refresh loop and a local JSON config/cache keep the dashboard responsive between calls.
+  </figcaption>
+</figure>
+
+The app starts with a setup dialog where the user provides a HoYoLab session cookie, UID, server, and optional advanced request-signing salt. It can detect the bound Star Rail role from the account, infer server from UID, normalize cookie text, and persist the app configuration under the user's home directory.
+
+Once configured, the dashboard creates a shared `HSRClient` and four primary tabs. Stamina pulls real-time note data and updates the "full in" timer every second from the last fetched snapshot. Check-In loads the monthly reward calendar and can claim the daily reward. Characters combines index, roster, and challenge data, then caches the roster locally for faster startup. Redeem supports a single code or batch redemption with a delay between requests.
+
+<p className="caps">Key technical decisions</p>
+
+- **Desktop GUI instead of command-line-only automation.** A GUI made the tool easier to use daily because status, errors, and results are visible without remembering commands or flags.
+- **One API client around HoYoLab endpoints.** The `HSRClient` centralizes cookies, headers, DS signing, request timeouts, retcode handling, authentication errors, and endpoint-specific parsing.
+- **Threaded background tasks for UI responsiveness.** API calls run in worker threads and report back through Tk callbacks, so long network calls do not freeze the interface.
+- **Scheduled refresh with manual control.** The app can auto-refresh notes, check-in status, and character data on separate intervals while still exposing a "Refresh All" button for explicit updates.
+- **Local cache for expensive roster data.** Character data is saved to a JSON cache after a successful sync, which gives the Characters tab useful content even before the next network refresh completes.
+- **Packaged Windows build.** The `build.ps1` script creates a one-file, windowed PyInstaller executable named `HSR Dashboard`, so the tool can run without launching Python manually.
+
+<p className="caps">Results</p>
+
+The repo reached a complete v1 desktop utility with setup, account detection, four functional tabs, scheduled background refresh, auto check-in on launch, single and batch code redemption, authentication error prompts, local character caching, and a packaged Windows executable.
+
+The implementation is compact but covers the full product path: 10 Python source files, a typed config model, a HoYoLab API wrapper, UI tabs separated by responsibility, and a build script that packages the app into `dist/HSR Dashboard.exe`.
+
+<p className="caps">What I would do differently</p>
+
+I would move session storage out of the JSON config file and into the Windows Credential Manager or a system keychain. The current local config is simple, but credential-sensitive desktop tools should treat session cookies more carefully.
+
+I would add API fixtures and tests around the response parsers. HoYoLab payload shapes can change, and the app already has several defensive parsing helpers; tests would make those assumptions explicit and easier to maintain.
+
+I would also add clearer rate limiting and backoff around batch redemption and scheduled refresh. The current delay protects the basic batch path, but a more production-ready version should handle retries, cooldowns, and endpoint-specific failures more deliberately.

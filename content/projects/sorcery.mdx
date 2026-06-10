@@ -1,0 +1,68 @@
+---
+title: "Sorcery - turn-based card game engine"
+subtitle: "Two-player, terminal-based card game written in C++20 for a CS246 final project. The engine models minions, enchantments, rituals, and spells over a shared card/target hierarchy, using the Decorator, Observer, Strategy, and Factory patterns so new cards are data plus small classes instead of edits to the game loop."
+slug: "sorcery"
+category: "personal project"
+date: "2025-09-09"
+status: "complete"
+role: "Team of three / OOP engine design"
+timeline: "University of Waterloo CS246, 2025"
+stack: ["C++20", "OOP design patterns", "Make", "g++"]
+repo: "https://github.com/leemon57/Sorcery_turn_based_card_game"
+featured: true
+order: 4
+---
+
+<p className="caps">The problem</p>
+
+A turn-based card game has a deceptively hard core. Dozens of cards each change the game in different ways - stat buffs, summons, board wipes, magic generation, effects that fire on someone else's turn - but they all share one rules engine. The naive approach is a giant switch over card names that grows every time a card is added, and quickly becomes impossible to reason about.
+
+Sorcery is a two-player, terminal-based duel in the spirit of Hearthstone. Each player has a deck, a hand, a board of up to five minions, a single ritual slot, and a graveyard. Players spend magic to play minions, enchantments, rituals, and spells, attack with their minions, and trigger abilities, racing to bring the opponent's life total to zero. The interesting CS246 problem was not the rules themselves; it was building a card-effect system where adding a card is a data file plus a small class, not a change to the game loop.
+
+<p className="caps">My role</p>
+
+This was a three-person team final project. I worked across the card-effect system: the `Card`/`Target` hierarchy, the Decorator-based enchantment layer, the Observer wiring for triggered abilities, and the loader that turns card files into concrete objects.
+
+Most of the engineering was design-pattern work rather than gameplay tuning. The goal we set was that the game loop should stay small and stable while the set of cards grows, so the patterns had to carry the variation instead of conditionals scattered through `Game` and `Player`.
+
+<p className="caps">System design</p>
+
+<figure className="fig">
+  <div className="frame">
+    <img
+      className="case-image"
+      src="/work/sorcery-uml.png"
+      alt="Sorcery UML class diagram showing the Card hierarchy, Decorator-based enchantments, Observer/Subject event system, the CardCollection zones, and the Ability classes"
+    />
+  </div>
+  <figcaption>
+    The full UML class diagram. Every card descends from a shared `Card` base while players and minions share a `Target` interface, and the four design patterns - Decorator (`Enchantment`), Observer (`Subject`/`TriggeredAbility`), Strategy (`Ability`), and a `Display` view hierarchy - carry the variation instead of branching inside the game loop.
+  </figcaption>
+</figure>
+
+`Game` owns two `Player` objects and runs turns in APNAP order (active player, then non-active player) through `active` and `inactive` pointers, broadcasting events as the turn changes. Each `Player` is a `Subject` that owns four card collections - `Hand`, `Deck`, `Board`, and `Graveyard` - and the board enforces the five-minion cap and the single ritual slot.
+
+The model is anchored on two abstractions. `Card` is the base for every card type, and `Target` is a separate interface that both `Player` and `Minion` implement, so anything that deals damage, heals, or buffs operates on a `Target*` without caring whether it is a player or a minion. On top of that base, four patterns do the real work: enchantments are Decorators that wrap a minion, triggered abilities are Observers on typed events, activated and triggered abilities sit behind a single `Ability` base, and `CardLoader` is the factory that turns card files into concrete objects.
+
+<p className="caps">Key technical decisions</p>
+
+- **One `Target` interface for players and minions.** Both implement `takeDamage`, `gainHp`, `gainAttack`, `getHp`, and `isDead`, so attacks, spells, and abilities resolve against a `Target*`. The combat and effect code never branches on "is this a player or a minion."
+- **Enchantments as a Decorator chain, not minion fields.** `Enchantment` is a `Decorator` that is itself a `Minion` and wraps the minion underneath it. `getAttack`, `getHp`, and `getAbilityCost` walk the wrapped minion and apply a modifier; a `mult` flag switches between additive buffs (Giant Strength) and multiplicative ones (Magic Fatigue). Buffs stack as a chain, and `removeEnchantment` peels the outer layer back off.
+- **Triggered abilities as observers on typed events.** A `Subject` keeps a `map<EventType, vector<Observer*>>`, so a `START_TURN` or `MINION_LEAVE` event only notifies the cards that registered for it. Triggered abilities detach themselves from the subject on destruction, which keeps observers from dangling when a minion leaves play.
+- **Two ability flavours behind one base.** `ActivatedAbility` carries a cost plus `needTarget`/`canPay` checks; `TriggeredAbility` is also an `Observer` and fires on an event. A `Minion` owns one `unique_ptr` of each, so a card can have an on-demand ability, an event-driven one, or both.
+- **Data-driven cards through a loader.** A `.card` file declares the type, cost, stats, and ability in a few lines, and a `.deck` file is just a list of card names. `CardLoader` is the single place that maps a name to its concrete `Ability` or `Spell` class, so the rest of the engine never sees a card-name string.
+- **`unique_ptr` ownership end to end.** Players own their collections, collections own cards, and minions own their abilities, so cleanup follows RAII down the tree. The Makefile builds with C++20 under `-Wall -Werror=vla` and `-MMD` auto-generated dependencies so header changes rebuild the right objects.
+
+<p className="caps">Results</p>
+
+Sorcery reached a complete, playable two-player game driven entirely from the terminal. The command set covers `help`, `end`, `quit`, `attack` (a minion or the opponent), `play` with optional targeting, `use` for activated abilities, `inspect`, `hand`, and `board`. Command-line flags let you set each player's deck (`-deck1`, `-deck2`), replay a scripted setup with `-init`, and run in deterministic `-testing` mode for the I/O-diff harness.
+
+The card set is broad enough to exercise every pattern: 22 cards spanning all four types - minions (the Air, Earth, and Fire Elementals, Bone Golem, Novice Pyromancer, Potion Seller, Apprentice and Master Summoner), enchantments (Giant Strength, Enrage, Haste, Magic Fatigue, Silence), rituals (Dark Ritual, Aura of Power, Standstill), and spells (Banish, Unsummon, Recharge, Disenchant, Raise Dead, Blizzard). Behind them are 14 concrete ability and spell classes plus a scripted `init`/`maintest` test path used to check turn flow against expected output.
+
+<p className="caps">What I would do differently</p>
+
+I would replace the hardcoded name-to-class ladder in `CardLoader` with a registration table. Right now adding a new effect still means editing a chain of `if` checks in the loader; a `map` from a card key to a factory function would let a concrete ability register itself and keep the loader closed to modification.
+
+I would also tighten how enchantments are applied and owned. The decorator stat math is clean, but the apply path has rough edges - `Enchantment::activate` reassigns a local pointer instead of wrapping the target through the board, which is a real bug - so I would route enchanting through the board's `replaceMinion` flow and make the ownership transfer explicit.
+
+Finally, I would build out the stubbed graphics view and add real unit tests. The `Display` hierarchy splits into a `TextDisplay` and a `GraphicsDisplay`, but the `-graphics` window was never finished, and the project leans on scripted input/output diffs rather than tests around the event broadcast and the decorator stat-stacking. Both would make the engine safer to extend with new cards.

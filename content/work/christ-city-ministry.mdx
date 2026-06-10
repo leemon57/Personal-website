@@ -1,0 +1,100 @@
+---
+title: "Christ City Ministry - data-driven community insights"
+subtitle: "WE Accelerate (Fall 2025) data-analytics consulting engagement for a Woodstock, Ontario church. As the data analyst, I cleaned 10+ Ontario demographic datasets, built a relational Power BI dashboard with custom DAX measures, and delivered a final report with a prioritized outreach action plan."
+slug: "christ-city-ministry"
+category: "work experience"
+date: "2025-11-28"
+status: "complete"
+role: "Data Analyst"
+timeline: "WE Accelerate, Fall 2025"
+stack: ["Power BI", "DAX", "Power Query", "Data modeling", "Excel"]
+featured: true
+order: 1
+---
+
+<p className="caps">The engagement</p>
+
+WE Accelerate is a student consulting program that pairs teams with real organizations. My team was matched with Christ City Ministry, a faith-based church in Woodstock, Ontario, under the "Data-Driven Solutions for Global Challenges" stream. The ministry wanted to understand the Christian demographic landscape across Ontario - and, more specifically, the needs of families in Woodstock - so it could target its outreach and services with evidence instead of guesswork.
+
+The catch with a brief like that is that the useful data is scattered across public sources in inconsistent shapes, and the people who need to act on it are not analysts. The job was less "find a number" and more "turn a pile of demographic data into something church leaders could explore and make decisions from." The expected deliverables spanned a demographic analysis, a challenges report focused on Woodstock families, a visualization dashboard, a recommendations and action plan, a metrics framework, and a final report.
+
+<p className="caps">My role</p>
+
+I was the data analyst on a small student consulting team over the Fall 2025 term. I owned the data side end to end: sourcing and cleaning the demographic datasets, designing the data model, building the Power BI dashboard, and writing the analytical findings and recommendations into the final report.
+
+In practice that meant being the person who turned secondary research into structured, comparable tables, then into a model and a dashboard that the rest of the team - and the ministry - could reason about. The engagement ran as a focused sprint, with the core build happening between late October and the end of November.
+
+<p className="caps">How I built it</p>
+
+<figure className="fig">
+  <svg viewBox="0 0 680 240" className="diagram" role="img" aria-label="Christ City Ministry data pipeline diagram">
+    <text x="20" y="30" className="label-faint">SOURCES</text>
+    <text x="388" y="82" className="label-faint">MODEL</text>
+    <text x="556" y="52" className="label-faint">DELIVERABLES</text>
+
+    <rect className="node-soft" x="20" y="44" width="140" height="44" rx="4" />
+    <text x="90" y="70" textAnchor="middle">Census / StatsCan</text>
+
+    <rect className="node-soft" x="20" y="100" width="140" height="44" rx="4" />
+    <text x="90" y="126" textAnchor="middle">public datasets</text>
+
+    <rect className="node-soft" x="20" y="156" width="140" height="44" rx="4" />
+    <text x="90" y="182" textAnchor="middle">municipal data</text>
+
+    <rect className="node" x="208" y="98" width="132" height="54" rx="4" />
+    <text x="274" y="120" textAnchor="middle">Power Query</text>
+    <text x="274" y="136" textAnchor="middle">clean + standardize</text>
+
+    <rect className="node accent" x="388" y="96" width="134" height="58" rx="4" style={{ strokeWidth: 1.5 }} />
+    <text x="455" y="121" textAnchor="middle">Relational model</text>
+    <text x="455" y="137" textAnchor="middle">DAX measures</text>
+
+    <rect className="node" x="560" y="66" width="112" height="50" rx="4" />
+    <text x="616" y="88" textAnchor="middle">Power BI</text>
+    <text x="616" y="104" textAnchor="middle">drill-down</text>
+
+    <rect className="node-soft" x="560" y="156" width="112" height="50" rx="4" />
+    <text x="616" y="178" textAnchor="middle">final report</text>
+    <text x="616" y="194" textAnchor="middle">action plan</text>
+
+    <path className="arrow" d="M160 66 L208 118" markerEnd="url(#ccm-ah)" />
+    <path className="arrow" d="M160 122 L208 125" markerEnd="url(#ccm-ah)" />
+    <path className="arrow" d="M160 178 L208 132" markerEnd="url(#ccm-ah)" />
+    <path className="arrow" d="M340 125 L388 125" markerEnd="url(#ccm-ah)" />
+    <path className="arrow" d="M522 118 L560 91" markerEnd="url(#ccm-ah)" />
+    <path className="arrow" d="M522 132 L560 181" markerEnd="url(#ccm-ah)" />
+
+    <defs>
+      <marker id="ccm-ah" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+        <path d="M0,0 L6,4 L0,8" fill="none" stroke="currentColor" strokeWidth="1" />
+      </marker>
+    </defs>
+  </svg>
+  <figcaption>
+    Ten-plus Ontario demographic datasets from public and secondary sources were cleaned and standardized in Power Query, modelled relationally with custom DAX measures, and surfaced through a drill-down Power BI dashboard and a final report with a prioritized action plan.
+  </figcaption>
+</figure>
+
+The raw material was secondary research: more than ten Ontario demographic datasets pulled from public sources. They arrived with different geographies, column names, and formats, so the first real work was cleaning and standardizing them in Power Query into analysis-ready tables that could be compared like-for-like across 15 municipalities.
+
+Rather than flatten everything into one spreadsheet, I modelled the cleaned tables relationally and wrote custom DAX measures for the population, attendance, and participation metrics the ministry actually cared about. The front end was an interactive Power BI dashboard with drill-down filtering, so a church leader could start at an Ontario-wide view and narrow down to Woodstock without needing an analyst in the room. The analysis then fed a final report that ended in concrete, prioritized recommendations.
+
+<p className="caps">Key decisions</p>
+
+- **Standardize before analyzing.** Ten-plus datasets from different sources used different geographies and formats. Cleaning and standardizing them in Power Query first meant every comparison across the 15 municipalities used the same definitions - the unglamorous step that makes a dashboard trustworthy.
+- **A relational model, not one flat table.** Modelling the tables relationally let measures be reused across views and kept the dashboard consistent and fast as filters changed, instead of re-deriving numbers per chart.
+- **Custom DAX measures for the ministry's questions.** Population trends, attendance, and participation were written as explicit DAX measures so a single definition drove every chart and drill-down rather than being recomputed ad hoc.
+- **Drill-down built for non-technical stakeholders.** The dashboard was designed for church leaders to explore the Ontario-to-Woodstock story themselves, so the deliverable would keep being useful after the engagement ended.
+- **Analysis tied to a decision.** The final report did not stop at description; it turned the data into a prioritized action plan aimed squarely at the Woodstock outreach strategy, which was the point of the whole engagement.
+
+<p className="caps">Results</p>
+
+The engagement delivered a complete data package for a faith-based organization that did not have one before: analysis-ready tables benchmarking regional population trends across 15 municipalities, built from 10+ cleaned Ontario datasets; an interactive Power BI dashboard with a relational data model and custom DAX measures that let stakeholders explore community needs, attendance trends, and participation rates with drill-down filtering; and a data-driven final report whose actionable, prioritized recommendations directly informed the ministry's outreach strategy for the Woodstock region.
+
+<p className="caps">What I would do differently</p>
+
+I would push for some primary data collection alongside the secondary research. The project leaned on public datasets, which are good for regional context but coarse for one congregation; even a small membership survey would have grounded the attendance and participation metrics in the ministry's own numbers rather than regional proxies.
+
+I would also turn the metrics framework into a living pipeline rather than a one-time snapshot. The brief asked for a way to track engagement over time, so given more runway I would have automated the dataset refresh and parameterized the model, letting the dashboard update as new public data is released instead of capturing only a Fall 2025 picture.
+
+Finally, I would document data lineage more rigorously. With more than ten public sources feeding a single model, an explicit source-to-measure mapping would make the numbers easier for the ministry to defend to its own community and easier for a future volunteer or analyst to extend.

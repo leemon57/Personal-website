@@ -1,0 +1,112 @@
+---
+title: "TrueCost - local-first personal finance"
+subtitle: "Expo/React Native finance app that keeps core budgeting data on-device. It combines SQLite/Drizzle storage, receipt-backed expenses, subscription tracking, loan scenario modeling, backup/restore, and optional AI insights through a backend proxy."
+slug: "truecost"
+category: "personal project"
+date: "2026-03-09"
+status: "complete"
+role: "Solo build"
+timeline: "2025 / 2026"
+stack: ["Expo", "React Native", "SQLite", "Drizzle", "Expo Router", "Jest"]
+repo: "https://github.com/leemon57/TrueCostAPP"
+featured: true
+order: 3
+---
+
+<p className="caps">The problem</p>
+
+Most personal finance apps make users choose between convenience and control. They either expect cloud accounts and connected bank feeds, or they become simple spreadsheet replacements that do not help users reason about recurring costs, receipts, debt, and future obligations together.
+
+TrueCost is built around a different constraint: the core app should keep working locally. It lets a user set up a budget profile, track expenses with receipt images, manage subscriptions, model loan scenarios, compare repayment options, and see monthly cost pressure without depending on an external server for the main workflow.
+
+<p className="caps">My role</p>
+
+As a solo build, I owned the mobile app structure, local data layer, financial calculators, receipt persistence, backup/restore flow, and the optional AI insight path. The work was mostly product engineering: deciding which finance concepts needed first-class screens, then keeping the calculations and stored data consistent across the dashboard, calendar, subscriptions, and scenario comparison views.
+
+The repo is organized as an Expo Router app with SQLite at the center. Screens read from the same local tables, shared utility functions handle finance math, and core data remains on-device unless the optional AI insights route is configured.
+
+<p className="caps">System design</p>
+
+<figure className="fig">
+  <svg viewBox="0 0 680 360" className="diagram" role="img" aria-label="TrueCost local-first hub-and-spoke architecture diagram">
+    <rect className="arrow dash" x="28" y="40" width="520" height="310" rx="10" />
+    <text x="40" y="33" className="label-faint">ON DEVICE</text>
+    <text x="560" y="148" className="label-faint">OPTIONAL AI</text>
+
+    <rect className="node" x="239" y="52" width="132" height="46" rx="4" />
+    <text x="305" y="72" textAnchor="middle">Dashboard</text>
+    <text x="305" y="88" textAnchor="middle">live queries</text>
+
+    <rect className="node" x="58" y="104" width="132" height="46" rx="4" />
+    <text x="124" y="124" textAnchor="middle">Expenses</text>
+    <text x="124" y="140" textAnchor="middle">calendar</text>
+
+    <rect className="node" x="414" y="104" width="130" height="46" rx="4" />
+    <text x="479" y="124" textAnchor="middle">Loan scenarios</text>
+    <text x="479" y="140" textAnchor="middle">comparison</text>
+
+    <rect className="node accent" x="240" y="156" width="130" height="58" rx="4" style={{ strokeWidth: 1.5 }} />
+    <text x="305" y="181" textAnchor="middle">SQLite core</text>
+    <text x="305" y="197" textAnchor="middle">Drizzle schema</text>
+
+    <rect className="node" x="58" y="250" width="132" height="46" rx="4" />
+    <text x="124" y="270" textAnchor="middle">Subscriptions</text>
+    <text x="124" y="286" textAnchor="middle">billing</text>
+
+    <rect className="node" x="414" y="250" width="130" height="46" rx="4" />
+    <text x="479" y="270" textAnchor="middle">Backup</text>
+    <text x="479" y="286" textAnchor="middle">restore</text>
+
+    <rect className="node" x="239" y="298" width="132" height="46" rx="4" />
+    <text x="305" y="318" textAnchor="middle">Receipt images</text>
+    <text x="305" y="334" textAnchor="middle">FileSystem</text>
+
+    <rect className="node-soft" x="560" y="156" width="112" height="58" rx="4" />
+    <text x="616" y="181" textAnchor="middle">AI proxy</text>
+    <text x="616" y="197" textAnchor="middle">JSON insights</text>
+
+    <path className="arrow" d="M305 156 L305 98" />
+    <path className="arrow" d="M305 214 L305 298" />
+    <path className="arrow" d="M240 176 L190 131" />
+    <path className="arrow" d="M240 194 L190 269" />
+    <path className="arrow" d="M370 176 L414 131" />
+    <path className="arrow" d="M370 194 L414 269" />
+    <path className="arrow dash" d="M370 185 L556 185" markerEnd="url(#tc-ah)" />
+    <text x="468" y="178" className="label-faint">optional</text>
+
+    <defs>
+      <marker id="tc-ah" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+        <path d="M0,0 L6,4 L0,8" fill="none" stroke="currentColor" strokeWidth="1" />
+      </marker>
+    </defs>
+  </svg>
+  <figcaption>
+    TrueCost is built around a local SQLite core that every screen reads from and writes to. The whole financial workflow stays on the device, inside the boundary; only the optional AI insights path sends a summarized scenario off-device, drawn as the dashed call.
+  </figcaption>
+</figure>
+
+The local database has five main tables: users, budget profiles, expenses, subscriptions, and loan scenarios. Initialization enables SQLite foreign keys and WAL mode, then applies small incremental migrations for budget-profile fields. The app uses Drizzle on top of `expo-sqlite` so screens can query structured data instead of passing large state objects through navigation.
+
+The dashboard uses live queries to combine recent expenses, active subscriptions, and loan scenarios into a monthly cost picture. Yearly subscriptions are normalized into monthly cost, while loans are calculated through a shared amortization utility so the dashboard, scenario detail page, and comparison screen do not drift apart.
+
+<p className="caps">Key technical decisions</p>
+
+- **Local-first SQLite instead of a backend dependency.** Budget data, expenses, receipts, subscriptions, and loan scenarios live on the device. That matches the privacy goal and keeps the app useful without network access.
+- **Shared calculators for financial behavior.** Loan payments, total interest, time-cost, and credit-card payoff logic live in utilities with Jest coverage. That makes the app easier to trust because screens are not each inventing their own version of the math.
+- **Persist receipt images before saving expenses.** Picker URIs can be temporary, so the add-expense flow copies receipt images into the app document directory and stores the durable URI with the expense record.
+- **Backup/restore at the database-file level.** The backup utility checkpoints SQLite WAL state, shares a copied database file, and restores by replacing the database and sidecar files. It is simple, understandable, and useful before a cloud sync system exists.
+- **AI behind a proxy boundary.** The app does not need an API key embedded in the client bundle. The optional insights route sends a compact scenario summary to a model endpoint, asks for strict JSON, and falls back to deterministic messages when the API is not configured or returns malformed output.
+
+<p className="caps">Results</p>
+
+TrueCost reached a working v1 mobile-app shape: onboarding, budget settings, dashboard overview, expense entry, receipt image attachment, calendar browsing, subscription management, loan scenario creation, scenario detail, side-by-side loan comparison, database backup/restore, and optional AI insights.
+
+The repo has concrete technical depth behind the UI. It includes a five-table local schema, live SQLite-backed dashboard reads, monthly normalization for yearly subscriptions, three loan payment frequencies, fixed and variable-rate scenario fields, receipt image persistence, and tests for the time-cost and credit-card payoff calculators. The current Jest suite passes with 10 tests across the financial calculator utilities.
+
+<p className="caps">What I would do differently</p>
+
+I would move the manual table-alter migration logic into a more formal migration path. The current setup is fine for a small local app, but a versioned migration system would make future schema changes easier to review and recover from.
+
+I would add integration tests around the SQLite flows that matter most: create expense with receipt, verify it appears on the calendar, add a subscription, add two loan scenarios, compare them, then backup and restore the database. Those flows are where product trust matters more than component-level coverage.
+
+I would also make the AI boundary more explicit in the product UI. Core finance data already stays local, but users should be able to tell when a summarized scenario leaves the device for optional analysis and when the app is showing deterministic fallback guidance instead.

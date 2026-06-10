@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
+import { ContactForm } from "@/components/ContactForm";
 import { PortfolioAgent } from "@/components/PortfolioAgent";
-import { ProjectCard } from "@/components/ProjectCard";
 import { getAllWork } from "@/lib/content";
+import { profile, profileFacts } from "@/lib/profile";
 
 export const metadata: Metadata = {
-  title: "Hany Jiang - Data + ML + Systems",
-  description:
-    "Hany Jiang builds full-stack systems and data tools. Data Science at Waterloo, open to Summer 2026 co-op roles.",
+  title: `${profile.name} - Data + ML + Systems`,
+  description: `${profile.name} builds ${profile.focus.toLowerCase()}. ${profile.program} at the ${profile.school}, based in ${profile.location}, and open to ${profile.seeking} roles.`,
   alternates: {
     canonical: "/",
   },
@@ -14,11 +14,11 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const work = await getAllWork();
-  const featuredWork = work.filter((entry) => entry.frontmatter.featured).slice(0, 4);
   const agentProjects = work.map((entry) => ({
     title: entry.frontmatter.title,
     subtitle: entry.frontmatter.subtitle,
     slug: entry.frontmatter.slug,
+    category: entry.frontmatter.category,
     status: entry.frontmatter.status,
     role: entry.frontmatter.role,
     timeline: entry.frontmatter.timeline,
@@ -32,13 +32,19 @@ export default async function HomePage() {
   const personJsonLd = {
     "@context": "https://schema.org",
     "@type": "Person",
-    name: "Hany Jiang",
-    url: "https://hanyjiang.com",
-    email: "mailto:hanyjiang@gmail.com",
-    sameAs: ["https://github.com/HanyJiang", "https://www.linkedin.com/in/hanyjiang"],
+    name: profile.name,
+    url: profile.siteUrl,
+    email: `mailto:${profile.email}`,
+    sameAs: [profile.github, profile.linkedin],
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Waterloo",
+      addressRegion: "Ontario",
+      addressCountry: "CA",
+    },
     affiliation: {
       "@type": "CollegeOrUniversity",
-      name: "University of Waterloo",
+      name: profile.school,
     },
   };
 
@@ -50,31 +56,32 @@ export default async function HomePage() {
       />
       <div className="home-stack">
         <section aria-labelledby="intro-title" className="intro agent-intro">
-          <h1 id="intro-title">Hany Jiang</h1>
-          <p className="lede">
-            I build full-stack systems and data tools. Data Science{" "}
-            <span className="muted">@ Waterloo</span>.
-          </p>
+          <h1 id="intro-title">{profile.name}</h1>
           <p className="open">
-            Ask the site about my projects, stack, resume, or Summer 2026 co-op fit.
+            Ask the site about my projects, stack, resume, or Winter 2027 co-op fit.
           </p>
+          <dl className="profile-facts" aria-label="Profile facts">
+            {profileFacts.map((fact) => (
+              <div key={fact.label}>
+                <dt>{fact.label}</dt>
+                <dd>{fact.value}</dd>
+              </div>
+            ))}
+          </dl>
         </section>
 
         <PortfolioAgent projects={agentProjects} />
 
-        <section aria-labelledby="selected-work">
-          <p className="caps" id="selected-work">
-            <span className="num">01</span>Selected work
-          </p>
-          <div>
-            {featuredWork.map((entry, index) => (
-              <ProjectCard
-                key={entry.frontmatter.slug}
-                index={index + 1}
-                project={entry.frontmatter}
-              />
-            ))}
+        <section aria-labelledby="contact-title" className="contact-panel" id="contact">
+          <div className="contact-panel-copy">
+            <p className="caps">Contact</p>
+            <h2 id="contact-title">Leave your info</h2>
+            <p className="muted">
+              If you are hiring or want to talk about a project, leave your contact
+              information and I will message back.
+            </p>
           </div>
+          <ContactForm />
         </section>
       </div>
     </div>

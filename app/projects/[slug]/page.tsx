@@ -2,31 +2,33 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MetadataStrip } from "@/components/MetadataStrip";
 import { MdxRenderer } from "@/components/MdxRenderer";
-import { getWorkBySlug, getWorkExperience } from "@/lib/content";
+import { getPersonalProjects, getWorkBySlug } from "@/lib/content";
 
-interface WorkPageProps {
+interface ProjectPageProps {
   params: Promise<{
     slug: string;
   }>;
 }
 
 export async function generateStaticParams() {
-  const work = await getWorkExperience();
-  return work.map((entry) => ({
+  const projects = await getPersonalProjects();
+  return projects.map((entry) => ({
     slug: entry.frontmatter.slug,
   }));
 }
 
-export async function generateMetadata({ params }: WorkPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: ProjectPageProps): Promise<Metadata> {
   const { slug } = await params;
 
   try {
-    const entry = await getWorkBySlug(slug, "work experience");
+    const entry = await getWorkBySlug(slug, "personal project");
     return {
       title: entry.frontmatter.title,
       description: entry.frontmatter.subtitle,
       alternates: {
-        canonical: `/work/${slug}`,
+        canonical: `/projects/${slug}`,
       },
     };
   } catch {
@@ -34,21 +36,24 @@ export async function generateMetadata({ params }: WorkPageProps): Promise<Metad
   }
 }
 
-export default async function WorkPage({ params }: WorkPageProps) {
+export default async function ProjectPage({ params }: ProjectPageProps) {
   const { slug } = await params;
 
   try {
-    const entry = await getWorkBySlug(slug, "work experience");
+    const entry = await getWorkBySlug(slug, "personal project");
 
     return (
       <article className="layout">
         <div className="prose">
           <header>
             <p className="caps">
-              Experience / {String(entry.frontmatter.order).padStart(2, "0")}
+              Project / {String(entry.frontmatter.order).padStart(2, "0")}
             </p>
             <h1>{entry.frontmatter.title}</h1>
-            <p className="lede muted" style={{ fontStyle: "italic", fontSize: "1.25rem" }}>
+            <p
+              className="lede muted"
+              style={{ fontStyle: "italic", fontSize: "1.25rem" }}
+            >
               {entry.frontmatter.subtitle}
             </p>
             <MetadataStrip

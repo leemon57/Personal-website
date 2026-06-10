@@ -14,9 +14,10 @@ export interface NavProps {
 
 const navItems = [
   { href: "/#ask-hany", label: "ask" },
+  { href: "/about", label: "about" },
+  { href: "/projects", label: "projects" },
   { href: "/work", label: "work" },
-  { href: "/now", label: "now" },
-  { href: "/uses", label: "uses" },
+  { href: "/contact", label: "contact" },
   { href: "/resume.pdf", label: "resume" },
 ];
 

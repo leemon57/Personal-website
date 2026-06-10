@@ -3,6 +3,7 @@ import { JetBrains_Mono, Newsreader } from "next/font/google";
 import "@/styles/globals.css";
 import { Footer } from "@/components/Footer";
 import { Nav } from "@/components/Nav";
+import { profile } from "@/lib/profile";
 
 const newsreader = Newsreader({
   subsets: ["latin"],
@@ -19,26 +20,23 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://hanyjiang.com"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? profile.siteUrl),
   title: {
-    default: "Hany Jiang - Data + ML + Systems",
-    template: "%s - Hany Jiang",
+    default: `${profile.name} - Data + ML + Systems`,
+    template: `%s - ${profile.name}`,
   },
-  description:
-    "Hany Jiang builds full-stack systems and data tools. Data Science at Waterloo, open to Summer 2026 co-op roles.",
+  description: `${profile.name} builds ${profile.focus.toLowerCase()}. ${profile.program} at the ${profile.school}, based in ${profile.location}, and open to ${profile.seeking} roles.`,
   openGraph: {
-    title: "Hany Jiang - Data + ML + Systems",
-    description:
-      "Full-stack systems and data tools by Hany Jiang, Data Science at Waterloo.",
+    title: `${profile.name} - Data + ML + Systems`,
+    description: `${profile.focus} by ${profile.name}, ${profile.program} at the ${profile.school}.`,
     url: "/",
-    siteName: "Hany Jiang",
+    siteName: profile.name,
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Hany Jiang - Data + ML + Systems",
-    description:
-      "Full-stack systems and data tools by Hany Jiang, Data Science at Waterloo.",
+    title: `${profile.name} - Data + ML + Systems`,
+    description: `${profile.focus} by ${profile.name}, ${profile.program} at the ${profile.school}.`,
   },
 };
 
@@ -58,7 +56,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
   `;
 
   return (
-    <html className={`${newsreader.variable} ${jetbrainsMono.variable}`} lang="en" suppressHydrationWarning>
+    <html
+      className={`${newsreader.variable} ${jetbrainsMono.variable}`}
+      lang="en"
+      suppressHydrationWarning
+    >
       <body>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <a className="skip-link" href="#main">
