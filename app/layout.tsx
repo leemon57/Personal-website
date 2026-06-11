@@ -22,22 +22,10 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? profile.siteUrl),
   title: {
-    default: `${profile.name} - Data + ML + Systems`,
+    default: profile.name,
     template: `%s - ${profile.name}`,
   },
   description: `${profile.name} builds ${profile.focus.toLowerCase()}. ${profile.program} at the ${profile.school}, based in ${profile.location}, and open to ${profile.seeking} roles.`,
-  openGraph: {
-    title: `${profile.name} - Data + ML + Systems`,
-    description: `${profile.focus} by ${profile.name}, ${profile.program} at the ${profile.school}.`,
-    url: "/",
-    siteName: profile.name,
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `${profile.name} - Data + ML + Systems`,
-    description: `${profile.focus} by ${profile.name}, ${profile.program} at the ${profile.school}.`,
-  },
 };
 
 export interface RootLayoutProps {

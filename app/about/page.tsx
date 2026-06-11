@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllWork, getCaseStudyHref } from "@/lib/content";
 import { profile, profileFacts, profileLinks } from "@/lib/profile";
+import { skillsetGroups } from "@/lib/skillset";
 
 export const metadata: Metadata = {
   title: "About",
@@ -10,38 +11,6 @@ export const metadata: Metadata = {
     canonical: "/about",
   },
 };
-
-const toolkit = [
-  { area: "Languages", items: ["Python", "C++", "Javascript/TypeScript", "SQL", "DAX"] },
-  {
-    area: "Backend & cloud",
-    items: ["AWS Lambda", "DynamoDB", "AWS SAM", "Docker", "Flask", "WebSockets / REST"],
-  },
-  {
-    area: "Frontend & mobile",
-    items: ["Next.js", "React", "React Native / Expo", "Material UI"],
-  },
-  {
-    area: "Data & ML",
-    items: [
-      "pandas",
-      "scikit-learn",
-      "TensorFlow / Keras",
-      "Power BI",
-      "anomaly detection",
-      "OpenAI APIs",
-    ],
-  },
-  {
-    area: "Practices",
-    items: [
-      "OOP design patterns",
-      "testing (Jest / pytest)",
-      "local-first data",
-      "resilient services",
-    ],
-  },
-];
 
 export default async function AboutPage() {
   const work = await getAllWork();
@@ -121,7 +90,7 @@ export default async function AboutPage() {
           </p>
           <p>Grouped by area, drawn from the projects and work on this site.</p>
           <dl className="about-skills" aria-label="Skillset">
-            {toolkit.map((group) => (
+            {skillsetGroups.map((group) => (
               <div className="skill-group" key={group.area}>
                 <dt>{group.area}</dt>
                 <dd>

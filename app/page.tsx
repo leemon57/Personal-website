@@ -5,7 +5,7 @@ import { getAllWork } from "@/lib/content";
 import { profile, profileFacts } from "@/lib/profile";
 
 export const metadata: Metadata = {
-  title: `${profile.name} - Data + ML + Systems`,
+  title: profile.name,
   description: `${profile.name} builds ${profile.focus.toLowerCase()}. ${profile.program} at the ${profile.school}, based in ${profile.location}, and open to ${profile.seeking} roles.`,
   alternates: {
     canonical: "/",

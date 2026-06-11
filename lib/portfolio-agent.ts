@@ -1,3 +1,5 @@
+import { formatSkillsetGroups } from "@/lib/skillset";
+
 export interface AgentProject {
   title: string;
   subtitle: string;
@@ -129,12 +131,46 @@ export function isTechStackQuestion(rawQuestion: string): boolean {
     "languages",
     "framework",
     "frameworks",
+    "use",
     "uses",
   ]);
 }
 
+function isLocationQuestion(question: string): boolean {
+  if (
+    includesAny(question, [
+      "based",
+      "location",
+      "located",
+      "waterloo",
+      "ontario",
+      "canada",
+    ])
+  ) {
+    return true;
+  }
+
+  return includesAny(question, ["where"]) && includesAny(question, ["live", "from"]);
+}
+
 function formatProject(project: AgentProject): string {
   return `${project.title}: ${project.subtitle} Category: ${project.category}. Role: ${project.role}. Stack: ${project.stack.join(", ")}.`;
+}
+
+function projectSearchText(project: AgentProject): string {
+  return normalize(
+    `${project.title} ${project.subtitle} ${project.category} ${project.role} ${project.stack.join(" ")}`,
+  );
+}
+
+function findProjectsByTerms(
+  projects: AgentProject[],
+  terms: string[],
+  limit: number,
+): AgentProject[] {
+  return projects
+    .filter((project) => includesAny(projectSearchText(project), terms))
+    .slice(0, limit);
 }
 
 function findNamedProject(
@@ -207,9 +243,7 @@ export function answerPortfolioQuestion(
     };
   }
 
-  if (
-    includesAny(question, ["based", "location", "where", "waterloo", "ontario", "canada"])
-  ) {
+  if (isLocationQuestion(question)) {
     return {
       content:
         "Hany is based in Waterloo, Ontario. He studies Data Science at the University of Waterloo and is recruiting for Winter 2027 co-op roles.",
@@ -237,6 +271,42 @@ export function answerPortfolioQuestion(
       content:
         "Hany is a Data Science student at the University of Waterloo. The site profile lists education dates as 2024-2028.",
       sources: [aboutSource, profileSource],
+    };
+  }
+
+  if (
+    !namedProject &&
+    includesAny(question, [
+      "who is hany",
+      "about hany",
+      "tell me about hany",
+      "introduce hany",
+      "profile",
+    ])
+  ) {
+    return {
+      content:
+        "Hany Jiang is a University of Waterloo Data Science student based in Waterloo, Ontario. This site presents backend, data, and ML-adjacent engineering work, with personal project case studies separated from formal work experience.",
+      sources: [profileSource, aboutSource, allWorkSource, workExperienceSource],
+    };
+  }
+
+  if (
+    !namedProject &&
+    includesAny(question, [
+      "strength",
+      "strengths",
+      "specialize",
+      "specializes",
+      "good at",
+      "focus",
+      "best at",
+    ])
+  ) {
+    return {
+      content:
+        "The site positions Hany around backend systems, data engineering, applied ML, and practical product engineering. For the exact tools, open the Skillset section; for proof, start with the featured case studies.",
+      sources: [aboutSource, skillsetSource, allWorkSource],
     };
   }
 
@@ -321,6 +391,49 @@ export function answerPortfolioQuestion(
   }
 
   if (
+    !namedProject &&
+    includesAny(question, [
+      "backend",
+      "serverless",
+      "aws",
+      "api",
+      "database",
+      "data engineering",
+      "websocket",
+      "websockets",
+    ])
+  ) {
+    const backendProjects = findProjectsByTerms(
+      projects,
+      [
+        "backend",
+        "flask",
+        "aws lambda",
+        "dynamodb",
+        "api",
+        "websocket",
+        "websockets",
+        "sqlite",
+        "drizzle",
+        "docker",
+      ],
+      4,
+    );
+    return {
+      content:
+        backendProjects.length > 0
+          ? `Good backend proof on the site: ${backendProjects
+              .map((project) => project.title)
+              .join(", ")}. ${backendProjects.map(formatProject).join("\n")}`
+          : "The site emphasizes backend and data engineering, but I do not see a matching backend case study in the current index.",
+      sources:
+        backendProjects.length > 0
+          ? [skillsetSource, ...backendProjects.map(projectSource)]
+          : [skillsetSource, allWorkSource],
+    };
+  }
+
+  if (
     includesAny(question, [
       "full stack",
       "full-stack",
@@ -377,7 +490,7 @@ export function answerPortfolioQuestion(
   if (isTechStackQuestion(rawQuestion)) {
     return {
       content:
-        "The clearest overview is the Skillset section on the About page. It groups Hany's languages, backend/cloud tools, frontend/mobile tools, data/ML tools, and engineering practices.",
+        `The clearest overview is the Skillset section on the About page. It groups Hany's tools as ${formatSkillsetGroups()}.`,
       sources: [skillsetSource],
     };
   }

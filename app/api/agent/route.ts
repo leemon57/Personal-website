@@ -10,6 +10,7 @@ import {
   isTechStackQuestion,
   profileSource,
   resumeSource,
+  skillsetSource,
   workExperienceSource,
   type AgentAnswer,
   type AgentHistoryMessage,
@@ -17,6 +18,7 @@ import {
   type SourceLink,
 } from "@/lib/portfolio-agent";
 import { profile } from "@/lib/profile";
+import { formatSkillsetGroups } from "@/lib/skillset";
 
 export const runtime = "nodejs";
 
@@ -279,6 +281,10 @@ function buildSourceDocuments(
     {
       source: aboutSource,
       text: `${profile.name} is a ${profile.program} student at the ${profile.school}, based in ${profile.location}. The about page says most of his work is backend, data engineering in Python, and data analytics as of now. Current personal project case studies on the site: ${projectList || "none"}. Current work experience case studies on the site: ${workList || "none"}.`,
+    },
+    {
+      source: skillsetSource,
+      text: `The Skillset section at /about#skillset groups Hany's tools and practices. Exact skillset groups: ${formatSkillsetGroups()}.`,
     },
     {
       source: contactSource,
