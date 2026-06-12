@@ -158,3 +158,51 @@ export const courseNotes = [
   "Upper-year focus leans into machine learning (CS 480 / 484 / 485 / 486) and statistical learning (STAT 440-444).",
   "GEOG 225 is planned as a breadth elective, term to be scheduled.",
 ];
+
+/**
+ * Compact, single-string summary of the academic plan for the portfolio
+ * assistant's grounding context. Includes the degree, GPA stats, completed
+ * terms with grades, and planned terms.
+ */
+export function formatCoursesSummary(): string {
+  const completed = terms.filter((term) => term.status === "completed");
+  const planned = terms.filter((term) => term.status === "planned");
+
+  const completedText = completed
+    .map((term) => {
+      const list = term.courses
+        .map((course) =>
+          [
+            course.code,
+            course.title,
+            typeof course.grade === "number" ? `${course.grade}%` : "credit",
+          ]
+            .filter(Boolean)
+            .join(" "),
+        )
+        .join("; ");
+      return `${term.term} (term average ${term.average}%, GPA ${term.gpa?.toFixed(2)}): ${list}`;
+    })
+    .join(". ");
+
+  const plannedText = planned
+    .map((term) => {
+      const list = term.courses
+        .map((course) => [course.code, course.title].filter(Boolean).join(" "))
+        .join("; ");
+      return `${term.term}${term.coop ? " (co-op work term)" : ""}: ${list}`;
+    })
+    .join(". ");
+
+  const stats = gpaStats
+    .map((stat) => `${stat.label} ${stat.value} (${stat.detail})`)
+    .join("; ");
+
+  return [
+    `${program.degree} at ${program.school}, ${program.years}.`,
+    `Grade summary: ${stats}.`,
+    `Completed terms with grades: ${completedText}.`,
+    `Planned terms: ${plannedText}.`,
+    courseNotes.join(" "),
+  ].join(" ");
+}

@@ -28,3 +28,25 @@ export interface Certificate {
 }
 
 export const certificates: Certificate[] = [];
+
+/**
+ * Single-string summary of certificates for the portfolio assistant's
+ * grounding context. Returns an explicit "none yet" sentence when empty so the
+ * agent answers honestly instead of guessing.
+ */
+export function formatCertificates(): string {
+  if (certificates.length === 0) {
+    return "No certificates or certifications are listed on the site yet.";
+  }
+
+  return certificates
+    .map((cert) =>
+      [
+        `${cert.name} - ${cert.issuer} (${cert.date})`,
+        cert.credentialId ? `credential ID ${cert.credentialId}` : "",
+      ]
+        .filter(Boolean)
+        .join(", "),
+    )
+    .join("; ");
+}

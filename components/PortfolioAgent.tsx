@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { FormEvent } from "react";
+import type { FormEvent, ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   allWorkSource,
@@ -25,12 +25,56 @@ interface PortfolioAgentProps {
 const suggestedQuestions = [
   "What has Hany built with AI?",
   "Which project shows full-stack work?",
+  "What courses has Hany taken?",
+  "What is Hany's GPA?",
   "Match Hany to a job description",
-  "Where is Hany based?",
   "Is Hany open to Winter 2027 co-op?",
   "What tech stack does Hany use?",
   "How can I contact Hany?",
 ];
+
+/**
+ * Renders an assistant/user message body, turning lines that begin with a
+ * bullet marker into a real list and the rest into paragraphs. Plain text only
+ * (no HTML), so it is safe to render model output directly.
+ */
+function renderMessageBody(content: string, id: number): ReactNode[] {
+  const lines = content
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const blocks: ReactNode[] = [];
+  let bullets: string[] = [];
+  let blockIndex = 0;
+
+  const flushBullets = () => {
+    if (bullets.length > 0) {
+      const items = bullets;
+      blocks.push(
+        <ul className="agent-list" key={`${id}-ul-${blockIndex++}`}>
+          {items.map((item, itemIndex) => (
+            <li key={`${id}-li-${blockIndex}-${itemIndex}`}>{item}</li>
+          ))}
+        </ul>,
+      );
+      bullets = [];
+    }
+  };
+
+  for (const line of lines) {
+    const bullet = /^[-*•]\s+(.*)$/u.exec(line);
+    if (bullet) {
+      bullets.push(bullet[1] ?? "");
+    } else {
+      flushBullets();
+      blocks.push(<p key={`${id}-p-${blockIndex++}`}>{line}</p>);
+    }
+  }
+
+  flushBullets();
+  return blocks;
+}
 
 function SourceAnchor({ source }: { source: SourceLink }) {
   if (source.href.startsWith("/")) {
@@ -85,7 +129,7 @@ export function PortfolioAgent({ projects }: PortfolioAgentProps) {
       id: 1,
       role: "assistant",
       content:
-        "Ask me about Hany's projects, stack, resume, or co-op fit. I answer from the content on this site and link the sources I used.",
+        "Hi — I'm Hany's portfolio assistant. Ask me about his projects, tech stack, courses and grades, certificates, resume, or Winter 2027 co-op fit. I answer only from this site and cite the sources I used.",
       sources: [profileSource, allWorkSource],
     },
   ]);
@@ -173,13 +217,20 @@ export function PortfolioAgent({ projects }: PortfolioAgentProps) {
   return (
     <section aria-labelledby="agent-title" className="agent-card" id="ask-hany">
       <div className="agent-topline">
-        <div>
-          <p className="caps" id="agent-title">
-            Portfolio assistant
-          </p>
-          <h2>Ask Hany</h2>
+        <div className="agent-id">
+          <span aria-hidden="true" className="agent-avatar">
+            <span className="agent-avatar-core" />
+          </span>
+          <div>
+            <p className="caps" id="agent-title">
+              Portfolio assistant
+            </p>
+            <h2>Ask Hany</h2>
+          </div>
         </div>
-        <p className="agent-fact">{projectCount} case studies indexed</p>
+        <p className="agent-fact">
+          {projectCount} case studies · courses · skills indexed
+        </p>
       </div>
 
       <div
@@ -193,9 +244,7 @@ export function PortfolioAgent({ projects }: PortfolioAgentProps) {
             <p className="agent-role">
               {message.role === "assistant" ? "Assistant" : "You"}
             </p>
-            {message.content.split("\n").map((line, index) => (
-              <p key={`${message.id}-line-${index}`}>{line}</p>
-            ))}
+            {renderMessageBody(message.content, message.id)}
             {message.sources && message.sources.length > 0 ? (
               <div className="agent-sources" aria-label="Sources">
                 {message.sources.map((source) => (
@@ -208,6 +257,17 @@ export function PortfolioAgent({ projects }: PortfolioAgentProps) {
             ) : null}
           </article>
         ))}
+
+        {isAsking ? (
+          <article aria-hidden="true" className="agent-message assistant typing-bubble">
+            <p className="agent-role">Assistant</p>
+            <div className="typing">
+              <span />
+              <span />
+              <span />
+            </div>
+          </article>
+        ) : null}
       </div>
 
       <div className="agent-suggestions" aria-label="Suggested questions">
@@ -224,8 +284,8 @@ export function PortfolioAgent({ projects }: PortfolioAgentProps) {
       </div>
 
       {isAsking ? (
-        <p className="agent-status" role="status">
-          Thinking...
+        <p className="sr-only" role="status">
+          Searching the site and writing an answer…
         </p>
       ) : null}
 

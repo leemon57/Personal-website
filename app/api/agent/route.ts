@@ -1,11 +1,15 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
+import { formatCertificates } from "@/lib/certificates";
 import { getAllWork, getCaseStudyHref } from "@/lib/content";
+import { formatCoursesSummary } from "@/lib/courses";
 import {
   allWorkSource,
   answerPortfolioQuestion,
   aboutSource,
+  certificatesSource,
   contactSource,
+  coursesSource,
   isJobDescriptionMatchQuestion,
   isTechStackQuestion,
   profileSource,
@@ -285,6 +289,14 @@ function buildSourceDocuments(
     {
       source: skillsetSource,
       text: `The Skillset section at /about#skillset groups Hany's tools and practices. Exact skillset groups: ${formatSkillsetGroups()}.`,
+    },
+    {
+      source: coursesSource,
+      text: `The Courses page at /courses lists Hany's University of Waterloo coursework, term-by-term grades, and GPA. ${formatCoursesSummary()}`,
+    },
+    {
+      source: certificatesSource,
+      text: `The Certificates section at /about#certificates lists Hany's certifications. ${formatCertificates()}`,
     },
     {
       source: contactSource,

@@ -1,3 +1,5 @@
+import { certificates, formatCertificates } from "@/lib/certificates";
+import { gpaStats, program } from "@/lib/courses";
 import { formatSkillsetGroups } from "@/lib/skillset";
 
 export interface AgentProject {
@@ -58,6 +60,16 @@ export const skillsetSource: SourceLink = {
   label: "Skillset",
   href: "/about#skillset",
 };
+export const coursesSource: SourceLink = {
+  id: "courses",
+  label: "Courses",
+  href: "/courses",
+};
+export const certificatesSource: SourceLink = {
+  id: "certificates",
+  label: "Certificates",
+  href: "/about#certificates",
+};
 
 export function projectSource(project: AgentProject): SourceLink {
   return {
@@ -75,6 +87,8 @@ export function getAgentSourceRegistry(projects: AgentProject[]): SourceLink[] {
     profileSource,
     aboutSource,
     skillsetSource,
+    coursesSource,
+    certificatesSource,
     allWorkSource,
     workExperienceSource,
     contactSource,
@@ -248,6 +262,56 @@ export function answerPortfolioQuestion(
       content:
         "Hany is based in Waterloo, Ontario. He studies Data Science at the University of Waterloo and is recruiting for Winter 2027 co-op roles.",
       sources: [aboutSource, profileSource],
+    };
+  }
+
+  if (
+    includesAny(question, [
+      "certificate",
+      "certificates",
+      "certification",
+      "certifications",
+      "certified",
+      "credential",
+      "credentials",
+      "license",
+      "licence",
+    ])
+  ) {
+    return {
+      content:
+        certificates.length > 0
+          ? `Hany's certificates: ${formatCertificates()}. They are listed in the Certificates section on the About page.`
+          : "There are no certificates listed on the site yet. The Certificates section on the About page will list them as Hany earns them.",
+      sources: [certificatesSource, aboutSource],
+    };
+  }
+
+  if (
+    includesAny(question, [
+      "course",
+      "courses",
+      "class",
+      "classes",
+      "coursework",
+      "gpa",
+      "grade",
+      "grades",
+      "mark",
+      "marks",
+      "transcript",
+      "academic",
+      "academics",
+      "calculus",
+      "combinatorics",
+      "took",
+      "taken",
+      "taking",
+    ])
+  ) {
+    return {
+      content: `Hany studies ${program.degree} at ${program.school} (${program.years}). ${gpaStats[0]?.label} grade ${gpaStats[0]?.value} (${gpaStats[0]?.detail}); CS average ${gpaStats[1]?.value}, math and statistics average ${gpaStats[2]?.value}. The Courses page lists every term and grade, from first-year calculus and CS through the planned upper-year machine learning and statistics courses.`,
+      sources: [coursesSource],
     };
   }
 
@@ -524,7 +588,7 @@ export function answerPortfolioQuestion(
 
   return {
     content:
-      "I can answer from the site content about Hany's projects, tech stack, education, location, resume, contact info, current work, and co-op fit. Try asking about SPIKE, Waterloo, Christ City, AI projects, or Winter 2027 co-op.",
-    sources: [profileSource, aboutSource, allWorkSource],
+      "I can answer from the site content about Hany's projects, tech stack, education, courses and grades, certificates, location, resume, contact info, current work, and co-op fit. Try asking about SPIKE, his GPA, AI projects, or Winter 2027 co-op.",
+    sources: [profileSource, aboutSource, coursesSource, allWorkSource],
   };
 }
