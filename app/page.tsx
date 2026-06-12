@@ -56,8 +56,10 @@ export default async function HomePage() {
       />
       <div className="home-stack">
         <section aria-labelledby="intro-title" className="intro agent-intro">
-          <h1 id="intro-title">{profile.name}</h1>
-          <p className="open">
+          <h1 className="sr-only" id="intro-title">
+            {profile.name}
+          </h1>
+          <p className="lede">
             Ask the site about my projects, stack, resume, or Winter 2027 co-op fit.
           </p>
           <dl className="profile-facts" aria-label="Profile facts">
@@ -70,9 +72,16 @@ export default async function HomePage() {
           </dl>
         </section>
 
-        <PortfolioAgent projects={agentProjects} />
+        <div data-reveal>
+          <PortfolioAgent projects={agentProjects} />
+        </div>
 
-        <section aria-labelledby="contact-title" className="contact-panel" id="contact">
+        <section
+          aria-labelledby="contact-title"
+          className="contact-panel"
+          data-reveal
+          id="contact"
+        >
           <div className="contact-panel-copy">
             <p className="caps">Contact</p>
             <h2 id="contact-title">Leave your info</h2>

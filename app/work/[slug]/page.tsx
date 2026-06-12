@@ -51,14 +51,16 @@ export default async function WorkPage({ params }: WorkPageProps) {
             <p className="lede muted" style={{ fontStyle: "italic", fontSize: "1.25rem" }}>
               {entry.frontmatter.subtitle}
             </p>
-            <MetadataStrip
-              demo={entry.frontmatter.demo}
-              repo={entry.frontmatter.repo}
-              role={entry.frontmatter.role}
-              stack={entry.frontmatter.stack}
-              status={entry.frontmatter.status}
-              timeline={entry.frontmatter.timeline}
-            />
+            <div data-reveal>
+              <MetadataStrip
+                demo={entry.frontmatter.demo}
+                repo={entry.frontmatter.repo}
+                role={entry.frontmatter.role}
+                stack={entry.frontmatter.stack}
+                status={entry.frontmatter.status}
+                timeline={entry.frontmatter.timeline}
+              />
+            </div>
           </header>
           <MdxRenderer source={entry.body} />
         </div>

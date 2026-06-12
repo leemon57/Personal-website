@@ -13,12 +13,12 @@ export default function Icon() {
       <div
         style={{
           alignItems: "center",
-          background: "#FAFAF7",
-          color: "#8B2635",
+          background: "linear-gradient(135deg, #0c0c15 0%, #1a1230 100%)",
+          color: "#f4d39e",
           display: "flex",
           fontFamily: "Georgia",
-          fontSize: 34,
-          fontWeight: 500,
+          fontSize: 36,
+          fontWeight: 600,
           height: "100%",
           justifyContent: "center",
           width: "100%",

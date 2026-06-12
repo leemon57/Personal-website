@@ -4,7 +4,7 @@ import { getAllWork, getCaseStudyHref } from "@/lib/content";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://hanyjiang.com";
   const work = await getAllWork();
-  const staticRoutes = ["", "/about", "/contact", "/projects", "/work"].map((route) => ({
+  const staticRoutes = ["", "/about", "/contact", "/courses", "/projects", "/work"].map((route) => ({
     url: `${siteUrl}${route}`,
     lastModified: new Date(),
   }));

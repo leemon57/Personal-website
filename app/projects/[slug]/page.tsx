@@ -56,14 +56,16 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             >
               {entry.frontmatter.subtitle}
             </p>
-            <MetadataStrip
-              demo={entry.frontmatter.demo}
-              repo={entry.frontmatter.repo}
-              role={entry.frontmatter.role}
-              stack={entry.frontmatter.stack}
-              status={entry.frontmatter.status}
-              timeline={entry.frontmatter.timeline}
-            />
+            <div data-reveal>
+              <MetadataStrip
+                demo={entry.frontmatter.demo}
+                repo={entry.frontmatter.repo}
+                role={entry.frontmatter.role}
+                stack={entry.frontmatter.stack}
+                status={entry.frontmatter.status}
+                timeline={entry.frontmatter.timeline}
+              />
+            </div>
           </header>
           <MdxRenderer source={entry.body} />
         </div>

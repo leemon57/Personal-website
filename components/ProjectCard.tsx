@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { getCaseStudyHref, type WorkFrontmatter } from "@/lib/content";
 
@@ -17,7 +18,11 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
   const href = getCaseStudyHref(project);
 
   return (
-    <article className="proj">
+    <article
+      className="proj"
+      data-reveal
+      style={{ "--reveal-delay": `${((index ?? 1) - 1) * 80}` } as CSSProperties}
+    >
       <div className="idx">{String(index ?? project.order).padStart(2, "0")}</div>
       <div>
         <h3>

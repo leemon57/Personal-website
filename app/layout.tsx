@@ -1,15 +1,24 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Newsreader } from "next/font/google";
+import { Fraunces, JetBrains_Mono, Manrope } from "next/font/google";
 import "@/styles/globals.css";
+import { Atmosphere } from "@/components/Atmosphere";
 import { Footer } from "@/components/Footer";
 import { Nav } from "@/components/Nav";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import { profile } from "@/lib/profile";
 
-const newsreader = Newsreader({
+const fraunces = Fraunces({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-newsreader",
-  weight: ["400", "500"],
+  variable: "--font-fraunces",
+  style: ["normal", "italic"],
+});
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-manrope",
+  weight: ["400", "500", "600", "700"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -34,23 +43,28 @@ export interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   const themeScript = `
-    try {
-      var saved = localStorage.getItem('hj-theme');
-      var prefers = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      document.documentElement.dataset.theme = saved || (prefers ? 'dark' : 'light');
-    } catch (e) {
-      document.documentElement.dataset.theme = 'light';
-    }
+    (function () {
+      var root = document.documentElement;
+      root.classList.add('js');
+      try {
+        var saved = localStorage.getItem('hj-theme');
+        root.dataset.theme = saved || 'dark';
+      } catch (e) {
+        root.dataset.theme = 'dark';
+      }
+    })();
   `;
 
   return (
     <html
-      className={`${newsreader.variable} ${jetbrainsMono.variable}`}
+      className={`${fraunces.variable} ${manrope.variable} ${jetbrainsMono.variable}`}
       lang="en"
       suppressHydrationWarning
     >
       <body>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <Atmosphere />
+        <ScrollReveal />
         <a className="skip-link" href="#main">
           Skip to content
         </a>

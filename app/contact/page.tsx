@@ -22,7 +22,9 @@ export default function ContactPage() {
             message back by email.
           </p>
         </header>
-        <ContactForm />
+        <div data-reveal>
+          <ContactForm />
+        </div>
       </article>
     </div>
   );

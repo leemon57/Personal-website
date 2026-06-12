@@ -36,7 +36,7 @@ export function ThemeToggle() {
       type="button"
     >
       <span aria-hidden="true" className="glyph">
-        {isDark ? "L" : "D"}
+        {isDark ? "☀" : "☾"}
       </span>
     </button>
   );

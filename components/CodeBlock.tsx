@@ -57,7 +57,11 @@ export async function CodeBlock({ children, className }: CodeBlockProps) {
   const { code, language } = parseCodeProps(children, className);
   const html = await codeToHtml(code, {
     lang: language,
-    theme: "github-light",
+    themes: {
+      light: "github-light",
+      dark: "github-dark-default",
+    },
+    defaultColor: false,
   });
 
   return (

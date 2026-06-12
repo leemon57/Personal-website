@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { FormEvent } from "react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   allWorkSource,
   answerPortfolioQuestion,
@@ -92,7 +92,18 @@ export function PortfolioAgent({ projects }: PortfolioAgentProps) {
   const [input, setInput] = useState("");
   const [isAsking, setIsAsking] = useState(false);
   const nextId = useRef(2);
+  const transcriptRef = useRef<HTMLDivElement>(null);
   const projectCount = useMemo(() => projects.length, [projects.length]);
+
+  // Keep the latest message (the question, "thinking", and the reply) in view
+  // so it is obvious the assistant responded. Respects reduced-motion via the
+  // transcript's CSS scroll-behavior.
+  useEffect(() => {
+    const el = transcriptRef.current;
+    if (el) {
+      el.scrollTop = el.scrollHeight;
+    }
+  }, [messages, isAsking]);
 
   async function ask(question: string) {
     const trimmed = question.trim();
@@ -171,7 +182,12 @@ export function PortfolioAgent({ projects }: PortfolioAgentProps) {
         <p className="agent-fact">{projectCount} case studies indexed</p>
       </div>
 
-      <div aria-busy={isAsking} aria-live="polite" className="agent-transcript">
+      <div
+        aria-busy={isAsking}
+        aria-live="polite"
+        className="agent-transcript"
+        ref={transcriptRef}
+      >
         {messages.map((message) => (
           <article className={`agent-message ${message.role}`} key={message.id}>
             <p className="agent-role">

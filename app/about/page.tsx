@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { certificates } from "@/lib/certificates";
 import { getAllWork, getCaseStudyHref } from "@/lib/content";
 import { profile, profileFacts, profileLinks } from "@/lib/profile";
 import { skillsetGroups } from "@/lib/skillset";
@@ -59,7 +60,7 @@ export default async function AboutPage() {
           </p>
         </header>
 
-        <dl className="about-facts" aria-label="Profile facts">
+        <dl className="about-facts" aria-label="Profile facts" data-reveal>
           {profileFacts.map((fact) => (
             <div key={fact.label}>
               <dt>{fact.label}</dt>
@@ -68,23 +69,7 @@ export default async function AboutPage() {
           ))}
         </dl>
 
-        <section aria-labelledby="about-work" className="about-section">
-          <p className="caps" id="about-work">
-            What this site proves
-          </p>
-          <p>
-            The case studies are project-first and span backend, data, and systems work: a
-            serverless Discord market-data bot on AWS Lambda, a real-time markets anomaly
-            tracker with live WebSocket ingestion, a C++ turn-based card-game engine built
-            on classic design patterns, an offline-first React Native finance app, and a
-            multi-task-learning price-prediction study - plus a NASA Space Apps research
-            explorer and a desktop automation tool. The work tab adds a data-analyst
-            consulting engagement building Power BI dashboards. Each one shows the design
-            choices, tradeoffs, and proof behind the build, not just a stack.
-          </p>
-        </section>
-
-        <section aria-labelledby="skillset" className="about-section">
+        <section aria-labelledby="skillset" className="about-section" data-reveal>
           <p className="caps" id="skillset">
             Skillset
           </p>
@@ -105,7 +90,51 @@ export default async function AboutPage() {
           </dl>
         </section>
 
-        <section aria-labelledby="about-start" className="about-section">
+        <section aria-labelledby="certificates" className="about-section" data-reveal>
+          <p className="caps" id="certificates">
+            Certificates
+          </p>
+          {certificates.length > 0 ? (
+            <div className="about-certs">
+              {certificates.map((cert) => {
+                const inner = (
+                  <>
+                    <span className="cert-main">
+                      <span className="cert-name">{cert.name}</span>
+                      <small className="cert-issuer">
+                        {cert.issuer}
+                        {cert.credentialId ? ` · ${cert.credentialId}` : ""}
+                      </small>
+                    </span>
+                    <small className="cert-date">{cert.date}</small>
+                  </>
+                );
+                const key = `${cert.name}-${cert.issuer}`;
+                return cert.url ? (
+                  <a
+                    className="about-cert"
+                    href={cert.url}
+                    key={key}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    {inner}
+                  </a>
+                ) : (
+                  <div className="about-cert" key={key}>
+                    {inner}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="section-note muted">
+              Certifications will be listed here as I complete them.
+            </p>
+          )}
+        </section>
+
+        <section aria-labelledby="about-start" className="about-section" data-reveal>
           <p className="caps" id="about-start">
             Start here
           </p>
@@ -123,7 +152,7 @@ export default async function AboutPage() {
           </div>
         </section>
 
-        <section aria-labelledby="about-links" className="about-section">
+        <section aria-labelledby="about-links" className="about-section" data-reveal>
           <p className="caps" id="about-links">
             Links
           </p>
