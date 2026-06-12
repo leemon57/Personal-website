@@ -917,7 +917,7 @@ hr.rule {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-soft), var(--shadow-glow);
+  box-shadow: var(--shadow-soft);
   backdrop-filter: blur(var(--glass-blur)) saturate(140%);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
   margin-top: 2.75rem;
@@ -925,7 +925,7 @@ hr.rule {
   overflow: hidden;
 }
 
-/* Animated gradient ring around the centerpiece card */
+/* Static gradient ring around the centerpiece card */
 .agent-card::before {
   content: "";
   position: absolute;
@@ -946,35 +946,6 @@ hr.rule {
   mask-composite: exclude;
   pointer-events: none;
   opacity: 0.9;
-}
-
-.agent-card::after {
-  content: "";
-  position: absolute;
-  top: -40%;
-  left: -10%;
-  width: 60%;
-  height: 160%;
-  background: radial-gradient(
-    closest-side,
-    color-mix(in srgb, var(--violet) 22%, transparent),
-    transparent
-  );
-  filter: blur(40px);
-  pointer-events: none;
-  animation: sheen 9s ease-in-out infinite;
-}
-
-@keyframes sheen {
-  0%,
-  100% {
-    transform: translateX(0);
-    opacity: 0.7;
-  }
-  50% {
-    transform: translateX(120%);
-    opacity: 1;
-  }
 }
 
 .agent-topline {
@@ -1050,7 +1021,6 @@ hr.rule {
   inset: -4px;
   border-radius: 50%;
   border: 1px solid color-mix(in srgb, var(--violet) 50%, transparent);
-  animation: avatar-ring 2.8s ease-out infinite;
 }
 
 .agent-avatar-core {
@@ -1059,30 +1029,6 @@ hr.rule {
   border-radius: 50%;
   background: var(--color-paper);
   box-shadow: 0 0 10px 1px color-mix(in srgb, #fff 70%, transparent);
-  animation: avatar-pulse 2.2s ease-in-out infinite;
-}
-
-@keyframes avatar-ring {
-  0% {
-    transform: scale(0.82);
-    opacity: 0.85;
-  }
-  100% {
-    transform: scale(1.4);
-    opacity: 0;
-  }
-}
-
-@keyframes avatar-pulse {
-  0%,
-  100% {
-    transform: scale(0.82);
-    opacity: 0.75;
-  }
-  50% {
-    transform: scale(1.08);
-    opacity: 1;
-  }
 }
 
 .typing-bubble {
