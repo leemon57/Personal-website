@@ -27,7 +27,7 @@ import { formatSkillsetGroups } from "@/lib/skillset";
 export const runtime = "nodejs";
 
 const defaultModel = "gemini-3.5-flash";
-const maxQuestionLength = 800;
+const maxQuestionLength = 8_000;
 const maxHistoryTurns = 4;
 const rateLimitWindowMs = 60_000;
 const rateLimitMaxRequests = 20;

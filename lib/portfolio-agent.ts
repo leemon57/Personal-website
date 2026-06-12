@@ -114,17 +114,141 @@ function includesAny(value: string, terms: string[]): boolean {
   return terms.some((term) => includesTerm(value, term));
 }
 
+function countMatchingTerms(value: string, terms: string[]): number {
+  return terms.filter((term) => includesTerm(value, term)).length;
+}
+
 export function isJobDescriptionMatchQuestion(rawQuestion: string): boolean {
   const question = normalize(rawQuestion);
-  return includesAny(question, [
-    "job description",
-    "job posting",
-    "jd",
-    "requirements",
+  if (
+    includesAny(question, [
+      "job description",
+      "job posting",
+      "role description",
+      "fit for this role",
+      "match this role",
+      "match this job",
+      "match hany",
+      "jd",
+    ])
+  ) {
+    return true;
+  }
+
+  const postingSignals = [
+    "job title",
+    "key responsibilities",
+    "required skills",
+    "preferred skills",
     "responsibilities",
-    "role description",
-    "match",
-    "fit for this role",
+    "requirements",
+    "internship",
+    "co-op",
+    "co op",
+    "full-time",
+    "full time",
+    "hybrid",
+    "vacancy",
+    "work hours",
+    "pay details",
+    "location",
+    "start end",
+  ];
+  const skillSignals = [
+    "python",
+    "powershell",
+    "javascript",
+    "typescript",
+    "groovy",
+    "sql",
+    "rest api",
+    "rest apis",
+    "jira",
+    "service desk",
+    "git",
+    "bitbucket",
+    "ci cd",
+    "jenkins",
+    "aws",
+    "cloud",
+    "power bi",
+    "dashboard",
+    "dashboards",
+    "scripting",
+    "automation",
+    "data migration",
+    "data validation",
+    "documentation",
+  ];
+
+  return (
+    rawQuestion.trim().length > 300 &&
+    countMatchingTerms(question, postingSignals) >= 2 &&
+    countMatchingTerms(question, skillSignals) >= 1
+  );
+}
+
+function isExplicitLocationQuestion(question: string): boolean {
+  return includesAny(question, [
+    "where is hany based",
+    "where is he based",
+    "where are you based",
+    "where does hany live",
+    "where does he live",
+    "hany location",
+    "hany's location",
+    "based in",
+    "located in",
+  ]);
+}
+
+function mentionsKnownLocation(question: string): boolean {
+  return includesAny(question, [
+    "waterloo",
+    "waterloo ontario",
+    "waterloo canada",
+  ]);
+}
+
+export function isEducationQuestion(rawQuestion: string): boolean {
+  const question = normalize(rawQuestion);
+  return includesAny(question, [
+    "education",
+    "school",
+    "university",
+    "waterloo",
+    "program",
+    "student",
+    "study",
+    "studying",
+    "major",
+    "year",
+    "2024",
+    "2029",
+  ]);
+}
+
+export function isCourseworkQuestion(rawQuestion: string): boolean {
+  const question = normalize(rawQuestion);
+  return includesAny(question, [
+    "course",
+    "courses",
+    "coursework",
+    "grade",
+    "grades",
+    "gpa",
+    "transcript",
+  ]);
+}
+
+export function isCertificatesQuestion(rawQuestion: string): boolean {
+  const question = normalize(rawQuestion);
+  return includesAny(question, [
+    "certificate",
+    "certificates",
+    "certification",
+    "certifications",
+    "linkedin learning",
   ]);
 }
 
@@ -151,20 +275,11 @@ export function isTechStackQuestion(rawQuestion: string): boolean {
 }
 
 function isLocationQuestion(question: string): boolean {
-  if (
-    includesAny(question, [
-      "based",
-      "location",
-      "located",
-      "waterloo",
-      "ontario",
-      "canada",
-    ])
-  ) {
-    return true;
+  if (isJobDescriptionMatchQuestion(question)) {
+    return false;
   }
 
-  return includesAny(question, ["where"]) && includesAny(question, ["live", "from"]);
+  return isExplicitLocationQuestion(question) || mentionsKnownLocation(question);
 }
 
 function formatProject(project: AgentProject): string {
