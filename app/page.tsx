@@ -3,10 +3,11 @@ import { ContactForm } from "@/components/ContactForm";
 import { PortfolioAgent } from "@/components/PortfolioAgent";
 import { getAllWork } from "@/lib/content";
 import { profile, profileFacts } from "@/lib/profile";
+import { pageContent } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: profile.name,
-  description: `${profile.name} builds ${profile.focus.toLowerCase()}. ${profile.program} at the ${profile.school}, based in ${profile.location}, and open to ${profile.seeking} roles.`,
+  description: pageContent.home.metadataDescription,
   alternates: {
     canonical: "/",
   },
@@ -38,9 +39,9 @@ export default async function HomePage() {
     sameAs: [profile.github, profile.linkedin],
     address: {
       "@type": "PostalAddress",
-      addressLocality: "Waterloo",
-      addressRegion: "Ontario",
-      addressCountry: "CA",
+      addressLocality: profile.address.locality,
+      addressRegion: profile.address.region,
+      addressCountry: profile.address.country,
     },
     affiliation: {
       "@type": "CollegeOrUniversity",
@@ -59,9 +60,7 @@ export default async function HomePage() {
           <h1 className="sr-only" id="intro-title">
             {profile.name}
           </h1>
-          <p className="lede">
-            Ask the site about my projects, stack, resume, or Winter 2027 co-op fit.
-          </p>
+          <p className="lede">{pageContent.home.introLede}</p>
           <dl className="profile-facts" aria-label="Profile facts">
             {profileFacts.map((fact) => (
               <div key={fact.label}>
@@ -83,12 +82,9 @@ export default async function HomePage() {
           id="contact"
         >
           <div className="contact-panel-copy">
-            <p className="caps">Contact</p>
-            <h2 id="contact-title">Leave your info</h2>
-            <p className="muted">
-              If you are hiring or want to talk about a project, leave your contact
-              information and I will message back.
-            </p>
+            <p className="caps">{pageContent.home.contact.eyebrow}</p>
+            <h2 id="contact-title">{pageContent.home.contact.title}</h2>
+            <p className="muted">{pageContent.home.contact.body}</p>
           </div>
           <ContactForm />
         </section>

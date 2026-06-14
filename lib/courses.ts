@@ -1,15 +1,20 @@
+import coursesContent from "@/content/courses.json";
+
 /**
- * Academic plan — University of Waterloo, Data Science (2024-2028).
+ * Academic plan content adapter.
  *
- * Source: Hany's UniPlan worksheet. Completed terms include the final
- * percentage grade; later terms are planned and list course codes only.
- * Course titles are the standard UW calendar names; a handful of upper-year
- * electives are intentionally left untitled until confirmed.
- *
- * Used by: app/courses/page.tsx
+ * Edit content/courses.json to update terms, courses, grades, summary stats,
+ * notes, or program metadata. This module keeps the public TypeScript API
+ * stable for the page and portfolio assistant.
  */
 
 export type TermStatus = "completed" | "planned";
+
+export interface Program {
+  degree: string;
+  school: string;
+  years: string;
+}
 
 export interface Course {
   code: string;
@@ -33,131 +38,113 @@ export interface Term {
   courses: Course[];
 }
 
-export const program = {
-  degree: "Honours Data Science (Co-op)",
-  school: "University of Waterloo",
-  years: "2024 - 2028",
-};
+export interface GpaStat {
+  label: string;
+  value: string;
+  detail: string;
+}
 
-export const gpaStats = [
-  { label: "Cumulative", value: "78.9%", detail: "3.24 GPA" },
-  { label: "CS average", value: "77.2%", detail: "core CS" },
-  { label: "Math average", value: "74.1%", detail: "math + stat" },
-  { label: "Terms done", value: "4", detail: "of 8 study terms" },
-];
+type CourseInput =
+  | string
+  | {
+      code: string;
+      title?: string;
+      grade?: number;
+    };
 
-export const terms: Term[] = [
-  {
-    term: "Fall 2024",
-    id: "fall-2024",
-    status: "completed",
-    average: 80.4,
-    gpa: 3.5,
-    courses: [
-      { code: "CS 135", title: "Designing Functional Programs", grade: 81 },
-      { code: "MATH 135", title: "Algebra for Honours Mathematics", grade: 76 },
-      { code: "MATH 137", title: "Calculus 1 for Honours Mathematics", grade: 74 },
-      { code: "ECON 102", title: "Introduction to Macroeconomics", grade: 85 },
-      { code: "ENGL 109", title: "Introduction to Academic Writing", grade: 86 },
-    ],
-  },
-  {
-    term: "Winter 2025",
-    id: "winter-2025",
-    status: "completed",
-    average: 78.3,
-    gpa: 3.18,
-    courses: [
-      { code: "CS 136", title: "Elementary Algorithm Design & Data Abstraction", grade: 82 },
-      { code: "CS 136L", title: "Tools & Techniques for Software Development" },
-      { code: "MATH 136", title: "Linear Algebra 1 for Honours Mathematics", grade: 78 },
-      { code: "STAT 230", title: "Probability", grade: 60 },
-      { code: "AFM 101", title: "Introduction to Financial Accounting", grade: 93 },
-    ],
-  },
-  {
-    term: "Spring 2025",
-    id: "spring-2025",
-    status: "completed",
-    average: 82.2,
-    gpa: 3.44,
-    courses: [
-      { code: "CS 246", title: "Object-Oriented Software Development", grade: 79 },
-      { code: "MATH 138", title: "Calculus 2 for Honours Mathematics", grade: 79 },
-      { code: "MATH 235", title: "Linear Algebra 2 for Honours Mathematics", grade: 71 },
-      { code: "ECON 101", title: "Introduction to Microeconomics", grade: 89 },
-      { code: "AFM 102", title: "Managerial & Cost Accounting", grade: 93 },
-    ],
-  },
-  {
-    term: "Winter 2026",
-    id: "winter-2026",
-    status: "completed",
-    average: 74.8,
-    gpa: 2.86,
-    courses: [
-      { code: "CS 241", title: "Foundations of Sequential Programs", grade: 76 },
-      { code: "CS 245", title: "Logic & Computation", grade: 68 },
-      { code: "MATH 237", title: "Calculus 3 for Honours Mathematics", grade: 75 },
-      { code: "STAT 231", title: "Statistics", grade: 64 },
-      { code: "HRM 200", title: "Basic Human Resources Management", grade: 91 },
-    ],
-  },
-  {
-    term: "Fall 2026",
-    id: "fall-2026",
-    status: "planned",
-    courses: [
-      { code: "CS 240", title: "Data Structures & Data Management" },
-      { code: "CS 251", title: "Computer Organization & Design" },
-      { code: "CS 370", title: "Numerical Computation" },
-      { code: "MATH 239", title: "Introduction to Combinatorics" },
-      { code: "STAT 332", title: "Sampling & Experimental Design" },
-    ],
-  },
-  {
-    term: "Spring 2027",
-    id: "spring-2027",
-    status: "planned",
-    coop: true,
-    courses: [
-      { code: "CS 341", title: "Algorithms" },
-      { code: "CS 348", title: "Introduction to Database Management" },
-      { code: "STAT 331", title: "Applied Linear Models" },
-      { code: "STAT 333", title: "Stochastic Processes 1" },
-    ],
-  },
-  {
-    term: "Winter 2028",
-    id: "winter-2028",
-    status: "planned",
-    courses: [
-      { code: "CS 431", title: "Data-Intensive Distributed Computing" },
-      { code: "STAT 330", title: "Mathematical Statistics" },
-      { code: "STAT 341", title: "Computational Statistics & Data Analysis" },
-      { code: "STAT 443", title: "Forecasting" },
-      { code: "ENGL 379" },
-    ],
-  },
-  {
-    term: "Fall 2028",
-    id: "fall-2028",
-    status: "planned",
-    coop: true,
-    courses: [
-      { code: "CS 479" },
-      { code: "CS 480", title: "Introduction to Machine Learning" },
-      { code: "CS 484", title: "Computational Vision" },
-      { code: "STAT 442", title: "Data Visualization" },
-    ],
-  },
-];
+interface TermInput {
+  term: string;
+  id?: string;
+  status?: string;
+  average?: number;
+  gpa?: number;
+  coop?: boolean;
+  courses: CourseInput[];
+}
 
-export const courseNotes = [
-  "Co-op work terms (Waterloo Works) are interspersed between study terms; tagged on the terms above.",
-  "Upper-year focus leans into machine learning (CS 480 / 484 / 485 / 486) and statistical learning (STAT 440-444).",
-  "GEOG 225 is planned as a breadth elective, term to be scheduled.",
-];
+interface CoursesContent {
+  program: Program;
+  stats: GpaStat[];
+  terms: TermInput[];
+  notes: string[];
+}
+
+const data = coursesContent as CoursesContent;
+
+function slugify(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/&/gu, "and")
+    .replace(/[^a-z0-9]+/gu, "-")
+    .replace(/^-+|-+$/gu, "");
+}
+
+function normalizeCourse(course: CourseInput): Course {
+  if (typeof course === "string") {
+    return { code: course.trim() };
+  }
+
+  if (!course.code.trim()) {
+    throw new Error("Course entries must include a non-empty code.");
+  }
+
+  return {
+    code: course.code.trim(),
+    ...(course.title ? { title: course.title } : {}),
+    ...(typeof course.grade === "number" ? { grade: course.grade } : {}),
+  };
+}
+
+function inferTermStatus(term: TermInput): TermStatus {
+  if (term.status === "completed" || term.status === "planned") {
+    return term.status;
+  }
+
+  if (term.status) {
+    throw new Error(`Unknown course term status "${term.status}" for ${term.term}.`);
+  }
+
+  return term.courses.some(
+    (course) => typeof course !== "string" && typeof course.grade === "number",
+  )
+    ? "completed"
+    : "planned";
+}
+
+function normalizeTerm(term: TermInput): Term {
+  if (!term.term.trim()) {
+    throw new Error("Course terms must include a non-empty term label.");
+  }
+
+  if (!Array.isArray(term.courses)) {
+    throw new Error(`Course term "${term.term}" must include a courses array.`);
+  }
+
+  return {
+    term: term.term.trim(),
+    id: term.id ?? slugify(term.term),
+    status: inferTermStatus(term),
+    ...(typeof term.average === "number" ? { average: term.average } : {}),
+    ...(typeof term.gpa === "number" ? { gpa: term.gpa } : {}),
+    ...(term.coop ? { coop: term.coop } : {}),
+    courses: term.courses.map(normalizeCourse),
+  };
+}
+
+export const program = data.program;
+export const gpaStats = data.stats;
+export const terms: Term[] = data.terms.map(normalizeTerm);
+export const courseNotes = data.notes;
+
+function formatTermMetrics(term: Term): string {
+  return [
+    typeof term.average === "number" ? `term average ${term.average}%` : null,
+    typeof term.gpa === "number" ? `GPA ${term.gpa.toFixed(2)}` : null,
+  ]
+    .filter(Boolean)
+    .join(", ");
+}
 
 /**
  * Compact, single-string summary of the academic plan for the portfolio
@@ -181,7 +168,8 @@ export function formatCoursesSummary(): string {
             .join(" "),
         )
         .join("; ");
-      return `${term.term} (term average ${term.average}%, GPA ${term.gpa?.toFixed(2)}): ${list}`;
+      const metrics = formatTermMetrics(term);
+      return `${term.term}${metrics ? ` (${metrics})` : ""}: ${list}`;
     })
     .join(". ");
 

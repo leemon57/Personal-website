@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { profile } from "@/lib/profile";
+import { navItems } from "@/lib/site";
 
 /**
  * Nav
@@ -12,23 +14,13 @@ export interface NavProps {
   className?: string;
 }
 
-const navItems = [
-  { href: "/#ask-hany", label: "ask" },
-  { href: "/about", label: "about" },
-  { href: "/projects", label: "projects" },
-  { href: "/work", label: "work" },
-  { href: "/courses", label: "courses" },
-  { href: "/contact", label: "contact" },
-  { href: "/resume.pdf", label: "resume" },
-];
-
 export function Nav({ className }: NavProps) {
   return (
     <header className={`nav ${className ?? ""}`}>
       <nav aria-label="Primary" className="layout nav-inner">
         <div className="nav-name">
           <Link className="quiet" href="/">
-            Hany Jiang
+            {profile.name}
           </Link>
         </div>
         <div className="nav-links">

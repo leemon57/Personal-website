@@ -1,5 +1,6 @@
 import { certificates, formatCertificates } from "@/lib/certificates";
 import { gpaStats, program } from "@/lib/courses";
+import { profile } from "@/lib/profile";
 import { formatSkillsetGroups } from "@/lib/skillset";
 
 export interface AgentProject {
@@ -70,6 +71,12 @@ export const certificatesSource: SourceLink = {
   label: "Certificates",
   href: "/about#certificates",
 };
+
+function possessiveName(name: string): string {
+  return name.endsWith("s") ? `${name}'` : `${name}'s`;
+}
+
+const profilePossessive = possessiveName(profile.name);
 
 export function projectSource(project: AgentProject): SourceLink {
   return {
@@ -203,11 +210,7 @@ function isExplicitLocationQuestion(question: string): boolean {
 }
 
 function mentionsKnownLocation(question: string): boolean {
-  return includesAny(question, [
-    "waterloo",
-    "waterloo ontario",
-    "waterloo canada",
-  ]);
+  return includesAny(question, ["waterloo", "waterloo ontario", "waterloo canada"]);
 }
 
 export function isEducationQuestion(rawQuestion: string): boolean {
@@ -358,8 +361,7 @@ export function answerPortfolioQuestion(
 
     if (matches.length === 0 || rawQuestion.trim().length < 80) {
       return {
-        content:
-          "Paste a job description or role requirements and I can map it to Hany's strongest supporting projects. I will cite the project pages I use.",
+        content: `Paste a job description or role requirements and I can map it to ${profilePossessive} strongest supporting projects. I will cite the project pages I use.`,
         sources: [aboutSource, allWorkSource],
       };
     }
@@ -367,15 +369,16 @@ export function answerPortfolioQuestion(
     return {
       content: `Best matching case studies: ${matches
         .map((project) => project.title)
-        .join(", ")}. Open the linked case studies below; those pages are the proof to use for this role.`,
+        .join(
+          ", ",
+        )}. Open the linked case studies below; those pages are the proof to use for this role.`,
       sources: matches.map(projectSource),
     };
   }
 
   if (isLocationQuestion(question)) {
     return {
-      content:
-        "Hany is based in Waterloo, Ontario. He studies Data Science at the University of Waterloo and is recruiting for Winter 2027 co-op roles.",
+      content: `${profile.name} is based in ${profile.location}. He studies ${profile.program} at the ${profile.school} and is recruiting for ${profile.seeking} roles.`,
       sources: [aboutSource, profileSource],
     };
   }
@@ -396,8 +399,8 @@ export function answerPortfolioQuestion(
     return {
       content:
         certificates.length > 0
-          ? `Hany's certificates: ${formatCertificates()}. They are listed in the Certificates section on the About page.`
-          : "There are no certificates listed on the site yet. The Certificates section on the About page will list them as Hany earns them.",
+          ? `${profilePossessive} certificates: ${formatCertificates()}. They are listed in the Certificates section on the About page.`
+          : `There are no certificates listed on the site yet. The Certificates section on the About page will list them as ${profile.name} earns them.`,
       sources: [certificatesSource, aboutSource],
     };
   }
@@ -425,7 +428,7 @@ export function answerPortfolioQuestion(
     ])
   ) {
     return {
-      content: `Hany studies ${program.degree} at ${program.school} (${program.years}). ${gpaStats[0]?.label} grade ${gpaStats[0]?.value} (${gpaStats[0]?.detail}); CS average ${gpaStats[1]?.value}, math and statistics average ${gpaStats[2]?.value}. The Courses page lists every term and grade, from first-year calculus and CS through the planned upper-year machine learning and statistics courses.`,
+      content: `${profile.name} studies ${program.degree} at ${program.school} (${program.years}). ${gpaStats[0]?.label} grade ${gpaStats[0]?.value} (${gpaStats[0]?.detail}); CS average ${gpaStats[1]?.value}, math and statistics average ${gpaStats[2]?.value}. The Courses page lists every term and grade, from first-year calculus and CS through the planned upper-year machine learning and statistics courses.`,
       sources: [coursesSource],
     };
   }
@@ -447,8 +450,7 @@ export function answerPortfolioQuestion(
     ])
   ) {
     return {
-      content:
-        "Hany is a Data Science student at the University of Waterloo. The site profile lists education dates as 2024-2028.",
+      content: `${profile.name} is a ${profile.program} student at the ${profile.school}. The site profile lists education dates as ${profile.educationDates}.`,
       sources: [aboutSource, profileSource],
     };
   }
@@ -464,8 +466,7 @@ export function answerPortfolioQuestion(
     ])
   ) {
     return {
-      content:
-        "Hany Jiang is a University of Waterloo Data Science student based in Waterloo, Ontario. This site presents backend, data, and ML-adjacent engineering work, with personal project case studies separated from formal work experience.",
+      content: `${profile.name} is a ${profile.program} student at the ${profile.school}, based in ${profile.location}. This site presents ${profile.focus.toLowerCase()} work, with personal project case studies separated from formal work experience.`,
       sources: [profileSource, aboutSource, allWorkSource, workExperienceSource],
     };
   }
@@ -483,8 +484,7 @@ export function answerPortfolioQuestion(
     ])
   ) {
     return {
-      content:
-        "The site positions Hany around backend systems, data engineering, applied ML, and practical product engineering. For the exact tools, open the Skillset section; for proof, start with the featured case studies.",
+      content: `The site positions ${profile.name} around ${profile.focus.toLowerCase()}. For the exact tools, open the Skillset section; for proof, start with the featured case studies.`,
       sources: [aboutSource, skillsetSource, allWorkSource],
     };
   }
@@ -517,18 +517,14 @@ export function answerPortfolioQuestion(
 
   if (includesAny(question, ["linkedin"])) {
     return {
-      content:
-        "This site links to Hany's LinkedIn profile, but the agent does not index or answer from LinkedIn page contents. I can answer from the profile, about, projects, work, contact, and resume links available on this site.",
+      content: `This site links to ${profilePossessive} LinkedIn profile, but the agent does not index or answer from LinkedIn page contents. I can answer from the profile, about, projects, work, contact, and resume links available on this site.`,
       sources: [contactSource, aboutSource],
     };
   }
 
-  if (
-    includesAny(question, ["contact", "email", "reach", "github", "message"])
-  ) {
+  if (includesAny(question, ["contact", "email", "reach", "github", "message"])) {
     return {
-      content:
-        "Employers can leave their contact information through the contact form on this site, and Hany will message back by email. His direct email, GitHub, LinkedIn, and resume are also linked in the footer.",
+      content: `Employers can leave their contact information through the contact form on this site, and ${profile.name} will message back by email. His direct email, GitHub, LinkedIn, and resume are also linked in the footer.`,
       sources: [contactSource, resumeSource],
     };
   }
@@ -561,7 +557,7 @@ export function answerPortfolioQuestion(
     return {
       content:
         aiProjects.length > 0
-          ? `Hany's clearest AI project is ${aiProjects.map((project) => project.title).join(", ")}. ${aiProjects
+          ? `${profilePossessive} clearest AI project is ${aiProjects.map((project) => project.title).join(", ")}. ${aiProjects
               .map(formatProject)
               .join("\n")}`
           : "The current project list does not include a dedicated AI project beyond the AI agent interface on this homepage.",
@@ -654,7 +650,7 @@ export function answerPortfolioQuestion(
       (project) => project.category.toLowerCase() === "work experience",
     );
     return {
-      content: `Hany has ${personalProjects.length} personal project case studies and ${workExperience.length} work experience case studies on the site. Featured projects include ${projects
+      content: `${profile.name} has ${personalProjects.length} personal project case studies and ${workExperience.length} work experience case studies on the site. Featured projects include ${projects
         .filter((project) => project.featured)
         .map((project) => project.title)
         .join(", ")}.`,
@@ -668,8 +664,7 @@ export function answerPortfolioQuestion(
 
   if (isTechStackQuestion(rawQuestion)) {
     return {
-      content:
-        `The clearest overview is the Skillset section on the About page. It groups Hany's tools as ${formatSkillsetGroups()}.`,
+      content: `The clearest overview is the Skillset section on the About page. It groups ${profilePossessive} tools as ${formatSkillsetGroups()}.`,
       sources: [skillsetSource],
     };
   }
@@ -687,23 +682,20 @@ export function answerPortfolioQuestion(
     ])
   ) {
     return {
-      content:
-        "Hany is open to Winter 2027 co-op roles across software engineering, data, and ML. The current case studies are personal projects, separated from formal work experience on the work page.",
+      content: `${profile.name} is open to ${profile.seeking} roles across software engineering, data, and ML. The current case studies are personal projects, separated from formal work experience on the work page.`,
       sources: [profileSource, ...projects.slice(0, 3).map(projectSource)],
     };
   }
 
   if (includesAny(question, ["now", "current", "learning", "reading"])) {
     return {
-      content:
-        "The site is currently focused on Hany's profile and project work. For current recruiting context, Hany is open to Winter 2027 co-op roles; for technical proof, start with the project pages.",
+      content: `The site is currently focused on ${profilePossessive} profile and project work. For current recruiting context, ${profile.name} is open to ${profile.seeking} roles; for technical proof, start with the project pages.`,
       sources: [aboutSource, allWorkSource],
     };
   }
 
   return {
-    content:
-      "I can answer from the site content about Hany's projects, tech stack, education, courses and grades, certificates, location, resume, contact info, current work, and co-op fit. Try asking about SPIKE, his GPA, AI projects, or Winter 2027 co-op.",
+    content: `I can answer from the site content about ${profilePossessive} projects, tech stack, education, courses and grades, certificates, location, resume, contact info, current work, and co-op fit. Try asking about SPIKE, his GPA, AI projects, or ${profile.seeking}.`,
     sources: [profileSource, aboutSource, coursesSource, allWorkSource],
   };
 }

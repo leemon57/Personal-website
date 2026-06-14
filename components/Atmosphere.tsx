@@ -5,11 +5,17 @@ import { useEffect, useRef } from "react";
 /**
  * Atmosphere
  *
- * Fixed, full-viewport cinematic backdrop: a drifting gradient mesh of
- * violet / rose / gold orbs plus a film-grain overlay. The orbs respond to
- * pointer movement with subtle parallax (driven by CSS custom properties so
- * the animation stays on the compositor). Purely decorative and inert to
- * assistive tech.
+ * Fixed, full-viewport pixel-art farm backdrop (Stardew skin). A banded sky
+ * sits across the top, rolling hills + a fence + crop rows line the bottom,
+ * and the wide middle stays the solid field colour so content reads cleanly.
+ *
+ * Day  -> blue sky, pixel sun, drifting clouds, green hills.
+ * Night -> indigo sky, twinkling stars, pixel moon, fireflies.
+ *
+ * Which set shows is driven entirely by CSS (html[data-theme]); this component
+ * only renders the layers. A cheap pointer-parallax nudges a few layers via
+ * CSS custom properties (compositor-only) and is skipped under reduced-motion.
+ * Purely decorative and inert to assistive tech.
  *
  * Used by: app/layout.tsx
  */
@@ -60,9 +66,28 @@ export function Atmosphere() {
   return (
     <>
       <div aria-hidden="true" className="atmosphere" ref={ref}>
-        <div className="orb orb-1" />
-        <div className="orb orb-2" />
-        <div className="orb orb-3" />
+        <div className="sky" />
+        <div className="stars" />
+        <div className="sky-body sun" />
+        <div className="sky-body moon" />
+        <div className="clouds">
+          <div className="cloud cloud-1" />
+          <div className="cloud cloud-2" />
+          <div className="cloud cloud-3" />
+        </div>
+        <div className="hills">
+          <div className="hill hill-back" />
+          <div className="hill hill-front" />
+        </div>
+        <div className="fence" />
+        <div className="crops" />
+        <div className="fireflies">
+          <div className="firefly" />
+          <div className="firefly" />
+          <div className="firefly" />
+          <div className="firefly" />
+          <div className="firefly" />
+        </div>
         <div className="vignette" />
       </div>
       <div aria-hidden="true" className="grain" />

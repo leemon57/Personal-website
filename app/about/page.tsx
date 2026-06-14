@@ -3,11 +3,12 @@ import Link from "next/link";
 import { certificates } from "@/lib/certificates";
 import { getAllWork, getCaseStudyHref } from "@/lib/content";
 import { profile, profileFacts, profileLinks } from "@/lib/profile";
+import { pageContent } from "@/lib/site";
 import { skillsetGroups } from "@/lib/skillset";
 
 export const metadata: Metadata = {
-  title: "About",
-  description: `${profile.name} is a ${profile.program} student at the ${profile.school} building ${profile.focus.toLowerCase()}.`,
+  title: pageContent.about.metadataTitle,
+  description: pageContent.about.metadataDescription,
   alternates: {
     canonical: "/about",
   },
@@ -31,16 +32,7 @@ export default async function AboutPage() {
         "@type": "CollegeOrUniversity",
         name: profile.school,
       },
-      knowsAbout: [
-        "Backend systems",
-        "Data engineering",
-        "Applied machine learning",
-        "Python",
-        "C++",
-        "TypeScript",
-        "SQL",
-        "Power BI",
-      ],
+      knowsAbout: pageContent.about.knowsAbout,
     },
   };
 
@@ -52,12 +44,9 @@ export default async function AboutPage() {
       />
       <article className="about-page">
         <header className="about-header">
-          <p className="caps">About</p>
+          <p className="caps">{pageContent.about.eyebrow}</p>
           <h1>{profile.name}</h1>
-          <p className="lede">
-            I am a 3A {profile.program} student at the {profile.school}, based in {profile.location}
-            . As of now, most of my work is backend, data engineering, and data analytics
-          </p>
+          <p className="lede">{pageContent.about.lede}</p>
         </header>
 
         <dl className="about-facts" aria-label="Profile facts" data-reveal>
@@ -71,9 +60,9 @@ export default async function AboutPage() {
 
         <section aria-labelledby="skillset" className="about-section" data-reveal>
           <p className="caps" id="skillset">
-            Skillset
+            {pageContent.about.skillset.heading}
           </p>
-          <p>Grouped by area, drawn from the projects and work on this site.</p>
+          <p>{pageContent.about.skillset.body}</p>
           <dl className="about-skills" aria-label="Skillset">
             {skillsetGroups.map((group) => (
               <div className="skill-group" key={group.area}>
@@ -92,7 +81,7 @@ export default async function AboutPage() {
 
         <section aria-labelledby="certificates" className="about-section" data-reveal>
           <p className="caps" id="certificates">
-            Certificates
+            {pageContent.about.certificates.heading}
           </p>
           {certificates.length > 0 ? (
             <div className="about-certs">
@@ -129,14 +118,14 @@ export default async function AboutPage() {
             </div>
           ) : (
             <p className="section-note muted">
-              Certifications will be listed here as I complete them.
+              {pageContent.about.certificates.emptyText}
             </p>
           )}
         </section>
 
         <section aria-labelledby="about-start" className="about-section" data-reveal>
           <p className="caps" id="about-start">
-            Start here
+            {pageContent.about.featuredWorkHeading}
           </p>
           <div className="about-projects">
             {featured.map((entry) => (
@@ -154,7 +143,7 @@ export default async function AboutPage() {
 
         <section aria-labelledby="about-links" className="about-section" data-reveal>
           <p className="caps" id="about-links">
-            Links
+            {pageContent.about.linksHeading}
           </p>
           <div className="about-links">
             {profileLinks.map((link) => (

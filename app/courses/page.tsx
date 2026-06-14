@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { courseNotes, gpaStats, program, terms } from "@/lib/courses";
+import { courseNotes, gpaStats, program, type Term, terms } from "@/lib/courses";
 import { profile } from "@/lib/profile";
 
 export const metadata: Metadata = {
@@ -20,6 +20,15 @@ function gradeBand(grade: number): "high" | "mid" | "low" {
   return "low";
 }
 
+function formatTermGrade(entry: Term): string | null {
+  const parts = [
+    typeof entry.average === "number" ? `${entry.average}%` : null,
+    typeof entry.gpa === "number" ? `${entry.gpa.toFixed(2)} GPA` : null,
+  ].filter(Boolean);
+
+  return parts.length > 0 ? parts.join(" · ") : null;
+}
+
 export default function CoursesPage() {
   return (
     <div className="layout">
@@ -28,8 +37,8 @@ export default function CoursesPage() {
           <p className="caps">Academics</p>
           <h1>Courses</h1>
           <p className="lede muted">
-            {program.degree} · {program.school} · {program.years}. Grades are shown
-            for completed terms; later terms are planned.
+            {program.degree} · {program.school} · {program.years}. Grades are shown for
+            completed terms; later terms are planned.
           </p>
         </header>
 
@@ -44,49 +53,51 @@ export default function CoursesPage() {
         </dl>
 
         <div className="term-list">
-          {terms.map((entry) => (
-            <section
-              aria-labelledby={`term-${entry.id}`}
-              className={`term ${entry.status}`}
-              data-reveal
-              key={entry.id}
-            >
-              <div className="term-head">
-                <h2 id={`term-${entry.id}`}>{entry.term}</h2>
-                <div className="term-meta">
-                  {entry.coop ? <span className="term-tag coop">co-op</span> : null}
-                  <span className={`term-tag ${entry.status}`}>{entry.status}</span>
-                  {entry.status === "completed" ? (
-                    <span className="term-grade">
-                      {entry.average}% · {entry.gpa?.toFixed(2)}
-                    </span>
-                  ) : null}
-                </div>
-              </div>
+          {terms.map((entry) => {
+            const termGrade = formatTermGrade(entry);
 
-              <ul className="course-list">
-                {entry.courses.map((course) => (
-                  <li className="course" key={course.code}>
-                    <span className="course-main">
-                      <span className="course-code">{course.code}</span>
-                      {course.title ? (
-                        <span className="course-title">{course.title}</span>
-                      ) : null}
-                    </span>
-                    {typeof course.grade === "number" ? (
-                      <span className={`grade-pill ${gradeBand(course.grade)}`}>
-                        {course.grade}
+            return (
+              <section
+                aria-labelledby={`term-${entry.id}`}
+                className={`term ${entry.status}`}
+                data-reveal
+                key={entry.id}
+              >
+                <div className="term-head">
+                  <h2 id={`term-${entry.id}`}>{entry.term}</h2>
+                  <div className="term-meta">
+                    {entry.coop ? <span className="term-tag coop">co-op</span> : null}
+                    <span className={`term-tag ${entry.status}`}>{entry.status}</span>
+                    {entry.status === "completed" && termGrade ? (
+                      <span className="term-grade">{termGrade}</span>
+                    ) : null}
+                  </div>
+                </div>
+
+                <ul className="course-list">
+                  {entry.courses.map((course) => (
+                    <li className="course" key={course.code}>
+                      <span className="course-main">
+                        <span className="course-code">{course.code}</span>
+                        {course.title ? (
+                          <span className="course-title">{course.title}</span>
+                        ) : null}
                       </span>
-                    ) : (
-                      <span className="grade-pill pending">
-                        {entry.status === "completed" ? "CR" : "—"}
-                      </span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
+                      {typeof course.grade === "number" ? (
+                        <span className={`grade-pill ${gradeBand(course.grade)}`}>
+                          {course.grade}
+                        </span>
+                      ) : (
+                        <span className="grade-pill pending">
+                          {entry.status === "completed" ? "CR" : "—"}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })}
         </div>
 
         <section aria-labelledby="courses-notes" className="courses-notes" data-reveal>

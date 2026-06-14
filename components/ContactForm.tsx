@@ -3,6 +3,7 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
 import { profile } from "@/lib/profile";
+import { contactFormContent } from "@/lib/site";
 
 const initialFields = {
   name: "",
@@ -26,7 +27,7 @@ function readErrorMessage(value: unknown): string {
     return value.error;
   }
 
-  return "Message could not be sent right now.";
+  return contactFormContent.defaultError;
 }
 
 export function ContactForm() {
@@ -68,14 +69,14 @@ export function ContactForm() {
 
       setFields(initialFields);
       setState("success");
-      setFeedback("Thanks. I received your info and will message back by email.");
+      setFeedback(contactFormContent.successMessage);
     } catch (error) {
       const message =
         error instanceof Error && error.name === "AbortError"
-          ? "Message timed out. Email me directly if this keeps happening."
+          ? contactFormContent.timeoutMessage
           : error instanceof Error
             ? error.message
-            : "Message could not be sent right now.";
+            : contactFormContent.defaultError;
       setState("error");
       setFeedback(message);
     } finally {
@@ -137,7 +138,7 @@ export function ContactForm() {
             disabled={state === "submitting"}
             name="role"
             onChange={(event) => updateField("role", event.target.value)}
-            placeholder="Recruiting, engineering, data..."
+            placeholder={contactFormContent.rolePlaceholder}
             type="text"
             value={fields.role}
           />
@@ -172,9 +173,11 @@ export function ContactForm() {
 
       <div className="contact-actions">
         <button disabled={state === "submitting"} type="submit">
-          {state === "submitting" ? "Sending" : "Leave info"}
+          {state === "submitting"
+            ? contactFormContent.submittingLabel
+            : contactFormContent.submitLabel}
         </button>
-        <a href={`mailto:${profile.email}`}>Email directly</a>
+        <a href={`mailto:${profile.email}`}>{contactFormContent.directEmailLabel}</a>
       </div>
 
       {feedback ? (

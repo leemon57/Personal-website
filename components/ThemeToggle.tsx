@@ -5,8 +5,9 @@ import { useEffect, useState } from "react";
 /**
  * ThemeToggle
  *
- * Applies the uploaded prototype's light/dark toggle by mutating the root
- * document theme attribute and persisting the choice in localStorage.
+ * Day / night switch for the farm skin. Mutates the root document theme
+ * attribute and persists the choice in localStorage. Shows a sun while at
+ * night (tap for day) and a moon while in day (tap for night).
  *
  * Used by: components/Nav.tsx
  */
@@ -29,10 +30,10 @@ export function ThemeToggle() {
 
   return (
     <button
-      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      aria-label={isDark ? "Switch to day" : "Switch to night"}
       className="theme-toggle"
       onClick={toggleTheme}
-      title={isDark ? "Light mode" : "Dark mode"}
+      title={isDark ? "Day" : "Night"}
       type="button"
     >
       <span aria-hidden="true" className="glyph">

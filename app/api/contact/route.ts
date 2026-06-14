@@ -52,9 +52,7 @@ function escapeHtml(value: string): string {
 function getClientId(request: Request): string {
   const forwardedFor = request.headers.get("x-forwarded-for");
   return (
-    forwardedFor?.split(",")[0]?.trim() ??
-    request.headers.get("x-real-ip") ??
-    "local"
+    forwardedFor?.split(",")[0]?.trim() ?? request.headers.get("x-real-ip") ?? "local"
   );
 }
 
@@ -175,7 +173,7 @@ export async function POST(request: Request) {
   const apiKey = process.env.RESEND_API_KEY;
   const toEmail = process.env.CONTACT_TO_EMAIL ?? profile.email;
   const fromEmail =
-    process.env.CONTACT_FROM_EMAIL ?? "Hany Jiang <onboarding@resend.dev>";
+    process.env.CONTACT_FROM_EMAIL ?? `${profile.name} <onboarding@resend.dev>`;
 
   if (!apiKey) {
     return NextResponse.json(

@@ -7,6 +7,14 @@ import { Nav } from "@/components/Nav";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { profile } from "@/lib/profile";
 
+/**
+ * Readable type for the Stardew skin. The wooden/parchment chrome stays pixel,
+ * but text uses clean, legible families on the same CSS-variable names so
+ * nothing downstream breaks:
+ *   --font-fraunces  display / headings -> Fraunces (warm serif)
+ *   --font-manrope   body / long-form   -> Manrope (clean sans)
+ *   --font-jetbrains mono / labels       -> JetBrains Mono
+ */
 const fraunces = Fraunces({
   subsets: ["latin"],
   display: "swap",

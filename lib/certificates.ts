@@ -1,19 +1,9 @@
+import certificatesContent from "@/content/certificates.json";
+
 /**
  * Certificates / certifications shown on the About page.
  *
- * Add an entry per certificate. `url` (verification link) and `credentialId`
- * are optional; when `url` is set the row links out to it.
- *
- * Example:
- *   {
- *     name: "AWS Certified Cloud Practitioner",
- *     issuer: "Amazon Web Services",
- *     date: "2025",
- *     url: "https://www.credly.com/...",
- *     credentialId: "ABC123",
- *   }
- *
- * Used by: app/about/page.tsx
+ * Edit content/certificates.json to add, remove, or reorder certificates.
  */
 
 export interface Certificate {
@@ -27,7 +17,7 @@ export interface Certificate {
   credentialId?: string;
 }
 
-export const certificates: Certificate[] = [];
+export const certificates = certificatesContent as Certificate[];
 
 /**
  * Single-string summary of certificates for the portfolio assistant's

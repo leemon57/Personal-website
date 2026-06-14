@@ -12,6 +12,7 @@ import {
   type AgentProject,
   type SourceLink,
 } from "@/lib/portfolio-agent";
+import { assistantContent } from "@/lib/site";
 
 interface AgentMessage extends AgentHistoryMessage {
   id: number;
@@ -21,17 +22,6 @@ interface AgentMessage extends AgentHistoryMessage {
 interface PortfolioAgentProps {
   projects: AgentProject[];
 }
-
-const suggestedQuestions = [
-  "What has Hany built with AI?",
-  "Which project shows full-stack work?",
-  "What courses has Hany taken?",
-  "What is Hany's GPA?",
-  "Match Hany to a job description",
-  "Is Hany open to Winter 2027 co-op?",
-  "What tech stack does Hany use?",
-  "How can I contact Hany?",
-];
 
 /**
  * Renders an assistant/user message body, turning lines that begin with a
@@ -128,8 +118,7 @@ export function PortfolioAgent({ projects }: PortfolioAgentProps) {
     {
       id: 1,
       role: "assistant",
-      content:
-        "Hi — I'm Hany's portfolio assistant. Ask me about his projects, tech stack, courses and grades, certificates, resume, or Winter 2027 co-op fit. I answer only from this site and cite the sources I used.",
+      content: assistantContent.initialMessage,
       sources: [profileSource, allWorkSource],
     },
   ]);
@@ -223,13 +212,13 @@ export function PortfolioAgent({ projects }: PortfolioAgentProps) {
           </span>
           <div>
             <p className="caps" id="agent-title">
-              Portfolio assistant
+              {assistantContent.eyebrow}
             </p>
-            <h2>Ask Hany</h2>
+            <h2>{assistantContent.title}</h2>
           </div>
         </div>
         <p className="agent-fact">
-          {projectCount} case studies · courses · skills indexed
+          {projectCount} {assistantContent.factSuffix}
         </p>
       </div>
 
@@ -271,7 +260,7 @@ export function PortfolioAgent({ projects }: PortfolioAgentProps) {
       </div>
 
       <div className="agent-suggestions" aria-label="Suggested questions">
-        {suggestedQuestions.map((question) => (
+        {assistantContent.suggestedQuestions.map((question) => (
           <button
             disabled={isAsking}
             key={question}
@@ -285,20 +274,20 @@ export function PortfolioAgent({ projects }: PortfolioAgentProps) {
 
       {isAsking ? (
         <p className="sr-only" role="status">
-          Searching the site and writing an answer…
+          {assistantContent.thinkingStatus}
         </p>
       ) : null}
 
       <form className="agent-form" onSubmit={submit}>
         <label className="sr-only" htmlFor="agent-question">
-          Ask a question about Hany
+          {assistantContent.inputLabel}
         </label>
         <input
           autoComplete="off"
           disabled={isAsking}
           id="agent-question"
           onChange={(event) => setInput(event.target.value)}
-          placeholder="Ask about projects, stack, resume, or co-op fit..."
+          placeholder={assistantContent.inputPlaceholder}
           type="text"
           value={input}
         />

@@ -12,6 +12,8 @@ export interface FooterProps {
 }
 
 export function Footer({ className }: FooterProps) {
+  const year = new Date().getFullYear();
+
   return (
     <footer className={`footer ${className ?? ""}`}>
       <div className="layout footer-inner">
@@ -21,7 +23,9 @@ export function Footer({ className }: FooterProps) {
             {index < profileLinks.length - 1 ? <span className="faint"> / </span> : null}
           </span>
         ))}
-        <span className="right">2026 / {profile.location.toLowerCase()}</span>
+        <span className="right">
+          {year} / {profile.location.toLowerCase()}
+        </span>
       </div>
     </footer>
   );
