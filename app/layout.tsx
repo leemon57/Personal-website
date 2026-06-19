@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Archivo, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "@/styles/globals.css";
 import { Atmosphere } from "@/components/Atmosphere";
 import { CommandPalette, type CommandLink } from "@/components/CommandPalette";
@@ -40,13 +41,28 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500", "700"],
 });
 
+const siteDescription = `${profile.name} builds ${profile.focus.toLowerCase()}. ${profile.program} at the ${profile.school}, based in ${profile.location}, and open to ${profile.seeking} roles.`;
+
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? profile.siteUrl),
   title: {
     default: profile.name,
     template: `%s - ${profile.name}`,
   },
-  description: `${profile.name} builds ${profile.focus.toLowerCase()}. ${profile.program} at the ${profile.school}, based in ${profile.location}, and open to ${profile.seeking} roles.`,
+  description: siteDescription,
+  openGraph: {
+    type: "website",
+    siteName: profile.name,
+    title: profile.name,
+    description: siteDescription,
+    url: "/",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: profile.name,
+    description: siteDescription,
+  },
 };
 
 export interface RootLayoutProps {
@@ -75,7 +91,12 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       root.classList.add('js');
       try {
         var saved = localStorage.getItem('hj-theme');
-        root.dataset.theme = saved || 'dark';
+        if (saved === 'light' || saved === 'dark') {
+          root.dataset.theme = saved;
+        } else {
+          root.dataset.theme =
+            window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
       } catch (e) {
         root.dataset.theme = 'dark';
       }
@@ -106,6 +127,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         />
         <main id="main">{children}</main>
         <Footer />
+        <Analytics />
       </body>
     </html>
   );

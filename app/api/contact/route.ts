@@ -1,53 +1,17 @@
 import { NextResponse } from "next/server";
+import {
+  escapeHtml,
+  validateSubmission,
+  type ContactSubmission,
+} from "@/lib/contact-validation";
 import { profile } from "@/lib/profile";
 
 export const runtime = "nodejs";
 
 const resendEndpoint = "https://api.resend.com/emails";
-const maxMessageLength = 3000;
 const rateLimitWindowMs = 10 * 60_000;
 const rateLimitMaxRequests = 5;
 const requestCounts = new Map<string, { count: number; resetAt: number }>();
-
-interface ContactSubmission {
-  name: string;
-  email: string;
-  company: string;
-  role: string;
-  message: string;
-  website: string;
-}
-
-interface ValidationResult {
-  submission?: ContactSubmission;
-  error?: string;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
-function readString(data: Record<string, unknown>, key: string): string {
-  const value = data[key];
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function normalizeWhitespace(value: string): string {
-  return value.replace(/\s+/gu, " ").trim();
-}
-
-function isValidEmail(value: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(value) && value.length <= 254;
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
 
 function getClientId(request: Request): string {
   const forwardedFor = request.headers.get("x-forwarded-for");
@@ -68,35 +32,6 @@ function isRateLimited(request: Request): boolean {
 
   current.count += 1;
   return current.count > rateLimitMaxRequests;
-}
-
-function validateSubmission(payload: unknown): ValidationResult {
-  if (!isRecord(payload)) {
-    return { error: "Expected a JSON request body." };
-  }
-
-  const submission = {
-    name: normalizeWhitespace(readString(payload, "name")).slice(0, 120),
-    email: readString(payload, "email").slice(0, 254),
-    company: normalizeWhitespace(readString(payload, "company")).slice(0, 140),
-    role: normalizeWhitespace(readString(payload, "role")).slice(0, 160),
-    message: readString(payload, "message").slice(0, maxMessageLength),
-    website: readString(payload, "website").slice(0, 200),
-  };
-
-  if (submission.name.length < 2) {
-    return { error: "Name is required." };
-  }
-
-  if (!isValidEmail(submission.email)) {
-    return { error: "A valid email is required." };
-  }
-
-  if (submission.message.length < 20) {
-    return { error: "Message must be at least 20 characters." };
-  }
-
-  return { submission };
 }
 
 function buildPlainTextEmail(submission: ContactSubmission, pageUrl: string): string {

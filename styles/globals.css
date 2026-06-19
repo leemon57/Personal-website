@@ -601,20 +601,96 @@ html[data-theme="dark"] .code-html .shiki span {
   opacity: 0.7;
 }
 
-.nav-links {
-  font-family: var(--font-body);
-  font-size: 0.95rem;
+/* Right-side cluster: links (inline desktop / dropdown mobile) + utilities */
+.nav-cluster {
   display: flex;
-  gap: 0.1rem;
   align-items: center;
-  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+/* Hamburger toggle — mobile only */
+.nav-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  margin-left: 0.1rem;
+  background: transparent;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-md);
+  color: var(--color-ink);
+  cursor: pointer;
+  transition:
+    background-color var(--transition),
+    border-color var(--transition);
+}
+
+.nav-toggle:hover {
+  background: var(--color-surface-2);
+  border-color: var(--color-rule-strong);
+}
+
+.nav-toggle-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  width: 18px;
+  height: 14px;
+}
+
+.nav-toggle-bar {
+  display: block;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transition:
+    transform var(--transition),
+    opacity var(--transition);
+}
+
+.nav[data-menu-open="true"] .nav-toggle-bar:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.nav[data-menu-open="true"] .nav-toggle-bar:nth-child(2) {
+  opacity: 0;
+}
+
+.nav[data-menu-open="true"] .nav-toggle-bar:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* Primary links: dropdown panel on mobile, inline row on desktop */
+.nav-links {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: none;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.5rem var(--pad-x) 1rem;
+  background: var(--color-paper);
+  border-bottom: 1px solid var(--color-rule);
+  box-shadow: var(--frame-drop);
+  font-family: var(--font-body);
+  font-size: 1rem;
   color: var(--color-ink-muted);
+}
+
+.nav[data-menu-open="true"] .nav-links {
+  display: flex;
 }
 
 .nav-links a {
   position: relative;
+  display: block;
+  width: 100%;
   color: var(--color-ink-muted);
-  padding: 0.4rem 0.7rem;
+  padding: 0.7rem 0.6rem;
   border-radius: var(--radius-sm);
   text-decoration: none;
   font-weight: 500;
@@ -629,8 +705,67 @@ html[data-theme="dark"] .code-html .shiki span {
   text-decoration: none;
 }
 
+.nav-links a.is-active {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+/* Mobile active marker: left accent bar */
+.nav-links a.is-active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55rem;
+  bottom: 0.55rem;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--color-accent);
+}
+
 .nav-links .sep {
   display: none;                /* clean spacing replaces slash separators */
+}
+
+@media (min-width: 768px) {
+  .nav-toggle {
+    display: none;
+  }
+
+  .nav-links {
+    position: static;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.1rem;
+    padding: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    font-size: 0.95rem;
+  }
+
+  .nav-links a {
+    display: inline-block;
+    width: auto;
+    padding: 0.4rem 0.7rem;
+  }
+
+  /* Desktop active marker: underline */
+  .nav-links a.is-active::before {
+    content: none;
+  }
+
+  .nav-links a.is-active::after {
+    content: "";
+    position: absolute;
+    left: 0.7rem;
+    right: 0.7rem;
+    bottom: 0.05rem;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--color-accent);
+  }
 }
 
 /* Theme toggle = minimal icon button */
@@ -1336,6 +1471,38 @@ hr.rule {
   outline: none;
   border-color: var(--color-accent);
   box-shadow: var(--shadow-glow);
+}
+
+/* Required marker + inline validation */
+.contact-form .req {
+  color: var(--danger);
+  margin-left: 0.15rem;
+}
+
+.contact-form input[aria-invalid="true"],
+.contact-form textarea[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.contact-form input[aria-invalid="true"]:focus,
+.contact-form textarea[aria-invalid="true"]:focus {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 22%, transparent);
+}
+
+.field-error {
+  margin-top: 0.1rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--danger) 80%, var(--color-ink));
+}
+
+.field-help {
+  margin-top: 0.1rem;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--color-ink-faint);
 }
 
 .contact-honeypot {
@@ -2576,16 +2743,6 @@ figure.fig figcaption {
 
 /* ---- Responsive ---------------------------------------------------------- */
 @media (max-width: 640px) {
-  .nav-inner {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 0.85rem;
-  }
-
-  .nav-links {
-    margin-left: -0.7rem;
-  }
-
   .proj,
   .post-row {
     grid-template-columns: 1fr;
