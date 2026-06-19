@@ -15,8 +15,12 @@ export function ThemeToggle() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
-    const current = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
-    setTheme(current);
+    const read = () =>
+      setTheme(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
+    read();
+    // Stay in sync when the theme is toggled elsewhere (e.g. the command menu).
+    window.addEventListener("hj:theme-change", read);
+    return () => window.removeEventListener("hj:theme-change", read);
   }, []);
 
   function toggleTheme() {

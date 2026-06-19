@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CommandMenuButton } from "@/components/CommandPalette";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { profile } from "@/lib/profile";
 import { navItems } from "@/lib/site";
@@ -32,6 +33,7 @@ export function Nav({ className }: NavProps) {
               {index < navItems.length - 1 ? <span className="sep">/</span> : null}
             </span>
           ))}
+          <CommandMenuButton />
           <ThemeToggle />
         </div>
       </nav>
