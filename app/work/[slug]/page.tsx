@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { MetadataStrip } from "@/components/MetadataStrip";
 import { MdxRenderer } from "@/components/MdxRenderer";
+import { TrackView } from "@/components/TrackView";
 import { getWorkBySlug, getWorkExperience } from "@/lib/content";
 
 interface WorkPageProps {
@@ -42,7 +44,23 @@ export default async function WorkPage({ params }: WorkPageProps) {
 
     return (
       <article className="layout">
+        <TrackView
+          event="project_view"
+          props={{ slug: entry.frontmatter.slug, title: entry.frontmatter.title }}
+        />
         <div className="prose">
+          {entry.frontmatter.heroImage ? (
+            <figure className="case-hero" data-reveal>
+              <Image
+                alt={entry.frontmatter.title}
+                className="case-hero-img"
+                fill
+                priority
+                sizes="(max-width: 900px) 100vw, 820px"
+                src={entry.frontmatter.heroImage}
+              />
+            </figure>
+          ) : null}
           <header>
             <p className="caps">
               Experience / {String(entry.frontmatter.order).padStart(2, "0")}

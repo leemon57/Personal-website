@@ -1,25 +1,40 @@
 import type { Metadata } from "next";
-import { Archivo, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import {
+  Archivo,
+  JetBrains_Mono,
+  Playfair_Display,
+  Space_Grotesk,
+} from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "@/styles/globals.css";
 import { Atmosphere } from "@/components/Atmosphere";
+import { AssistantProvider } from "@/components/AssistantProvider";
 import { CommandPalette, type CommandLink } from "@/components/CommandPalette";
+import { FloatingAssistant } from "@/components/FloatingAssistant";
 import { Footer } from "@/components/Footer";
-import { Nav } from "@/components/Nav";
+import { PageTransition } from "@/components/PageTransition";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { Sidebar } from "@/components/Sidebar";
 import { getAllWork, getCaseStudyHref } from "@/lib/content";
 import { profile } from "@/lib/profile";
 import { navItems } from "@/lib/site";
 
 /**
- * Type system for the "Trust & Authority" minimalist skin (UI/UX Pro Max
- * "Minimalist Portfolio" pairing). Each family is loaded once and exposed as a
- * CSS variable; globals.css maps these to semantic role tokens
- * (--font-display / --font-body / --font-mono):
- *   --font-space      display / headings -> Space Grotesk (distinctive, tight)
+ * Type system for the "Serene Bento Portfolio" skin. Each family is loaded once
+ * and exposed as a CSS variable; globals.css maps these to semantic role tokens
+ * (--font-serif / --font-display / --font-body / --font-mono):
+ *   --font-playfair   serif headlines    -> Playfair Display (display serif)
+ *   --font-space      display / UI accent -> Space Grotesk (tight geometric)
  *   --font-archivo    body / long-form   -> Archivo (clean, highly readable)
  *   --font-jetbrains  mono / labels       -> JetBrains Mono (metadata, code)
  */
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-playfair",
+  weight: ["400", "500", "600", "700"],
+});
+
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   display: "swap",
@@ -84,6 +99,20 @@ export default async function RootLayout({ children }: RootLayoutProps) {
     href: getCaseStudyHref(entry.frontmatter),
     hint: entry.frontmatter.category,
   }));
+  const agentProjects = work.map((entry) => ({
+    title: entry.frontmatter.title,
+    subtitle: entry.frontmatter.subtitle,
+    slug: entry.frontmatter.slug,
+    category: entry.frontmatter.category,
+    status: entry.frontmatter.status,
+    role: entry.frontmatter.role,
+    timeline: entry.frontmatter.timeline,
+    stack: entry.frontmatter.stack,
+    repo: entry.frontmatter.repo,
+    demo: entry.frontmatter.demo,
+    featured: entry.frontmatter.featured,
+    order: entry.frontmatter.order,
+  }));
 
   const themeScript = `
     (function () {
@@ -94,18 +123,17 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         if (saved === 'light' || saved === 'dark') {
           root.dataset.theme = saved;
         } else {
-          root.dataset.theme =
-            window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+          root.dataset.theme = 'light';
         }
       } catch (e) {
-        root.dataset.theme = 'dark';
+        root.dataset.theme = 'light';
       }
     })();
   `;
 
   return (
     <html
-      className={`${spaceGrotesk.variable} ${archivo.variable} ${jetbrainsMono.variable}`}
+      className={`${playfair.variable} ${spaceGrotesk.variable} ${archivo.variable} ${jetbrainsMono.variable}`}
       lang="en"
       suppressHydrationWarning
     >
@@ -116,7 +144,18 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         <a className="skip-link" href="#main">
           Skip to content
         </a>
-        <Nav />
+        <AssistantProvider>
+          <div className="shell">
+            <Sidebar />
+            <div className="shell-main">
+              <main id="main">
+                <PageTransition>{children}</PageTransition>
+              </main>
+              <Footer />
+            </div>
+          </div>
+          <FloatingAssistant projects={agentProjects} />
+        </AssistantProvider>
         <CommandPalette
           email={profile.email}
           github={profile.github}
@@ -125,8 +164,6 @@ export default async function RootLayout({ children }: RootLayoutProps) {
           projects={paletteProjects}
           resume={profile.resume}
         />
-        <main id="main">{children}</main>
-        <Footer />
         <Analytics />
       </body>
     </html>

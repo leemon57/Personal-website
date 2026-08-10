@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { certificates } from "@/lib/certificates";
-import { getAllWork, getCaseStudyHref } from "@/lib/content";
 import { profile, profileFacts, profileLinks } from "@/lib/profile";
 import { pageContent } from "@/lib/site";
 import { skillsetGroups } from "@/lib/skillset";
@@ -14,9 +12,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function AboutPage() {
-  const work = await getAllWork();
-  const featured = work.filter((entry) => entry.frontmatter.featured).slice(0, 4);
+export default function AboutPage() {
+  const firstName = profile.name.split(/\s+/u)[0] ?? profile.name;
 
   const profilePageJsonLd = {
     "@context": "https://schema.org",
@@ -42,27 +39,29 @@ export default async function AboutPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(profilePageJsonLd) }}
         type="application/ld+json"
       />
-      <article className="about-page">
-        <header className="about-header">
-          <p className="caps">{pageContent.about.eyebrow}</p>
-          <h1>{profile.name}</h1>
-          <p className="lede">{pageContent.about.lede}</p>
-        </header>
 
-        <dl className="about-facts" aria-label="Profile facts" data-reveal>
-          {profileFacts.map((fact) => (
-            <div key={fact.label}>
-              <dt>{fact.label}</dt>
-              <dd>{fact.value}</dd>
-            </div>
-          ))}
-        </dl>
+      <header className="section-head" data-reveal>
+        <h1 className="section-title">About {firstName}</h1>
+      </header>
 
-        <section aria-labelledby="skillset" className="about-section" data-reveal>
-          <p className="caps" id="skillset">
+      <div className="about-stack">
+        <div className="about-panel" data-reveal>
+          <p className="about-lede">{pageContent.about.lede}</p>
+          <p className="muted">{profile.summary}</p>
+          <dl className="about-mini-facts">
+            {profileFacts.map((fact) => (
+              <div key={fact.label}>
+                <dt>{fact.label}</dt>
+                <dd>{fact.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        <section aria-labelledby="skillset" className="about-panel" data-reveal>
+          <p className="bento-label" id="skillset">
             {pageContent.about.skillset.heading}
           </p>
-          <p>{pageContent.about.skillset.body}</p>
           <dl className="about-skills" aria-label="Skillset">
             {skillsetGroups.map((group) => (
               <div className="skill-group" key={group.area}>
@@ -79,8 +78,12 @@ export default async function AboutPage() {
           </dl>
         </section>
 
-        <section aria-labelledby="certificates" className="about-section" data-reveal>
-          <p className="caps" id="certificates">
+        <section
+          aria-labelledby="certificates"
+          className="about-panel"
+          data-reveal
+        >
+          <p className="bento-label" id="certificates">
             {pageContent.about.certificates.heading}
           </p>
           {certificates.length > 0 ? (
@@ -123,26 +126,8 @@ export default async function AboutPage() {
           )}
         </section>
 
-        <section aria-labelledby="about-start" className="about-section" data-reveal>
-          <p className="caps" id="about-start">
-            {pageContent.about.featuredWorkHeading}
-          </p>
-          <div className="about-projects">
-            {featured.map((entry) => (
-              <Link
-                className="about-project"
-                href={getCaseStudyHref(entry.frontmatter)}
-                key={entry.frontmatter.slug}
-              >
-                <span>{entry.frontmatter.title}</span>
-                <small>{entry.frontmatter.role}</small>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section aria-labelledby="about-links" className="about-section" data-reveal>
-          <p className="caps" id="about-links">
+        <section aria-labelledby="about-links" className="about-panel" data-reveal>
+          <p className="bento-label" id="about-links">
             {pageContent.about.linksHeading}
           </p>
           <div className="about-links">
@@ -153,7 +138,7 @@ export default async function AboutPage() {
             ))}
           </div>
         </section>
-      </article>
+      </div>
     </div>
   );
 }

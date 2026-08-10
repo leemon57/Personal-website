@@ -24,6 +24,8 @@ export interface WorkFrontmatter {
   stack: string[];
   repo?: string;
   demo?: string;
+  /** Optional full-bleed hero image (path under /public), e.g. /work/foo.jpg. */
+  heroImage?: string;
   featured: boolean;
   order: number;
 }
@@ -129,6 +131,7 @@ function parseWork(
     stack: readStringArray(data, "stack"),
     repo: readOptionalString(data, "repo"),
     demo: readOptionalString(data, "demo"),
+    heroImage: readOptionalString(data, "heroImage"),
     featured: readBoolean(data, "featured", false),
     order: readNumber(data, "order", 999),
   };

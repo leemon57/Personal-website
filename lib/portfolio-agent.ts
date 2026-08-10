@@ -1,7 +1,8 @@
 import { certificates, formatCertificates } from "@/lib/certificates";
 import { gpaStats, program } from "@/lib/courses";
 import { profile } from "@/lib/profile";
-import { formatSkillsetGroups } from "@/lib/skillset";
+import { assistantContent } from "@/lib/site";
+import { formatSkillsetGroups, skillsetGroups } from "@/lib/skillset";
 
 export interface AgentProject {
   title: string;
@@ -71,12 +72,6 @@ export const certificatesSource: SourceLink = {
   label: "Certificates",
   href: "/about#certificates",
 };
-
-function possessiveName(name: string): string {
-  return name.endsWith("s") ? `${name}'` : `${name}'s`;
-}
-
-const profilePossessive = possessiveName(profile.name);
 
 export function projectSource(project: AgentProject): SourceLink {
   return {
@@ -188,11 +183,36 @@ export function isJobDescriptionMatchQuestion(rawQuestion: string): boolean {
     "documentation",
   ];
 
+  const length = rawQuestion.trim().length;
+  const posting = countMatchingTerms(question, postingSignals);
+  const skills = countMatchingTerms(question, skillSignals);
+  // A shorter paste still reads as a JD when it has clear posting + skill
+  // signals; a longer paste needs only a single skill hit.
   return (
-    rawQuestion.trim().length > 300 &&
-    countMatchingTerms(question, postingSignals) >= 2 &&
-    countMatchingTerms(question, skillSignals) >= 1
+    (length > 140 && posting >= 2 && skills >= 2) ||
+    (length > 220 && posting >= 2 && skills >= 1)
   );
+}
+
+/**
+ * True when a job-description-match intent carries no actual posting — e.g. the
+ * recruiter clicked the "Match a job description" chip (or the suggested
+ * question) and sent it with nothing pasted. Strips the assistant's own
+ * "match … job description:" lead-in, then checks whether any real posting text
+ * remains. Used to prompt for the JD instead of letting the model invent a
+ * scorecard from nothing.
+ */
+export function isEmptyJobDescription(rawQuestion: string): boolean {
+  const stripped = normalize(rawQuestion)
+    .replaceAll(
+      /\b(match|assess|evaluate|rate|score|yourself|hany|me|my|i|to|for|against|how|well|would|do|does|you|your|fit|are|is|the|a|an|this|that|these|role|roles|position|job description|job posting|role description|jd)\b/g,
+      " ",
+    )
+    .replaceAll(/[\s:.,-]+/g, " ")
+    .trim();
+  // A genuine posting leaves plenty of surviving words; an empty click leaves
+  // essentially nothing.
+  return stripped.length < 16;
 }
 
 function isExplicitLocationQuestion(question: string): boolean {
@@ -231,17 +251,91 @@ export function isEducationQuestion(rawQuestion: string): boolean {
   ]);
 }
 
+const courseworkKeywords = [
+  "course",
+  "courses",
+  "class",
+  "classes",
+  "coursework",
+  "gpa",
+  "grade",
+  "grades",
+  "mark",
+  "marks",
+  "transcript",
+  "academic",
+  "academics",
+  "calculus",
+  "combinatorics",
+  "took",
+  "taken",
+  "taking",
+];
+
+/** True when a question is about coursework/grades/GPA (recruiter-gated data). */
 export function isCourseworkQuestion(rawQuestion: string): boolean {
+  return includesAny(normalize(rawQuestion), courseworkKeywords);
+}
+
+// Standard recruiter screening topics, answered from editable presets in
+// content/site.json (assistant.screening) so the answer is instant and precise.
+const availabilityKeywords = [
+  "available",
+  "availability",
+  "start date",
+  "when can",
+  "when will he",
+  "when is he available",
+  "which term",
+  "what term",
+  "notice period",
+  "how soon",
+  "open to",
+  "open for",
+];
+const workAuthKeywords = [
+  "work authorization",
+  "authorized to work",
+  "work permit",
+  "sponsorship",
+  "sponsor",
+  "visa",
+  "eligible to work",
+  "legally allowed",
+  "right to work",
+  "citizen",
+  "permanent resident",
+];
+const relocationKeywords = [
+  "relocate",
+  "relocation",
+  "willing to move",
+  "remote",
+  "on-site",
+  "on site",
+  "onsite",
+  "hybrid",
+  "which cities",
+];
+const roleTypeKeywords = [
+  "full-time",
+  "full time",
+  "permanent role",
+  "co-op or full",
+  "internship or full",
+  "type of role",
+  "kind of role",
+];
+
+/** True for standard recruiter screening questions (availability, work auth…). */
+export function isScreeningQuestion(rawQuestion: string): boolean {
   const question = normalize(rawQuestion);
-  return includesAny(question, [
-    "course",
-    "courses",
-    "coursework",
-    "grade",
-    "grades",
-    "gpa",
-    "transcript",
-  ]);
+  return (
+    includesAny(question, workAuthKeywords) ||
+    includesAny(question, availabilityKeywords) ||
+    includesAny(question, relocationKeywords) ||
+    includesAny(question, roleTypeKeywords)
+  );
 }
 
 export function isCertificatesQuestion(rawQuestion: string): boolean {
@@ -346,9 +440,81 @@ function getJobDescriptionMatches(
     .map((item) => item.project);
 }
 
+function isWorkExperience(project: AgentProject): boolean {
+  return project.category.toLowerCase() === "work experience";
+}
+
+/** Skills from the skillset that the pasted job description mentions. */
+function matchedSkillsFor(question: string): string[] {
+  const all = skillsetGroups.flatMap((group) => group.items);
+  return Array.from(new Set(all.filter((skill) => includesTerm(question, skill)))).slice(
+    0,
+    8,
+  );
+}
+
+/**
+ * Deterministic job-description matcher used as the fallback when the LLM is
+ * unavailable. Prioritizes work experience, then projects, then skills, and
+ * frames a confident but truthful case. Never invents experience.
+ */
+function buildJobMatchAnswer(
+  rawQuestion: string,
+  question: string,
+  projects: AgentProject[],
+): AgentAnswer {
+  if (isEmptyJobDescription(rawQuestion)) {
+    return {
+      content: `Paste the role's requirements or the full job description and I'll map it to my strongest work, projects, and skills — with links to the proof.`,
+      sources: [workExperienceSource, allWorkSource],
+    };
+  }
+
+  const matches = getJobDescriptionMatches(question, projects);
+  const ordered = [
+    ...matches.filter(isWorkExperience),
+    ...matches.filter((project) => !isWorkExperience(project)),
+  ];
+  const skills = matchedSkillsFor(question);
+
+  if (ordered.length > 0) {
+    const verdict =
+      ordered.length >= 2
+        ? "I'm a strong fit for this role."
+        : "I'm a solid fit for this role.";
+    const bullets = ordered
+      .map(
+        (project) =>
+          `• ${project.title} (${project.role}) — ${project.stack.slice(0, 4).join(", ")}`,
+      )
+      .join("\n");
+    const skillLine =
+      skills.length > 0
+        ? ` On the skills you need, I already work hands-on with ${skills.join(", ")}.`
+        : "";
+    return {
+      content: `${verdict} The closest proof on my site:\n${bullets}${skillLine}\nThe linked case studies below are the evidence to take into the loop.`,
+      sources: [...ordered.map(projectSource), skillsetSource].slice(0, 5),
+    };
+  }
+
+  if (skills.length > 0) {
+    return {
+      content: `I don't have a one-to-one case study for this exact role yet, but the skill overlap is real — I already work with ${skills.join(", ")}. My core strengths in backend systems, data engineering and analytics, and applied ML carry over directly; the Skillset and projects below are the starting points.`,
+      sources: [skillsetSource, allWorkSource, aboutSource],
+    };
+  }
+
+  return {
+    content: `The strongest areas on my site are backend and data engineering, data analytics, applied ML, and full-stack builds. Paste the specific requirements and I'll line them up against my projects and skills, with links.`,
+    sources: [aboutSource, skillsetSource, allWorkSource],
+  };
+}
+
 export function answerPortfolioQuestion(
   rawQuestion: string,
   projects: AgentProject[],
+  unlocked = false,
 ): AgentAnswer {
   const question = normalize(rawQuestion);
   const namedProject = findNamedProject(question, projects);
@@ -357,28 +523,40 @@ export function answerPortfolioQuestion(
   );
 
   if (isJobDescriptionMatchQuestion(rawQuestion)) {
-    const matches = getJobDescriptionMatches(question, projects);
+    return buildJobMatchAnswer(rawQuestion, question, projects);
+  }
 
-    if (matches.length === 0 || rawQuestion.trim().length < 80) {
-      return {
-        content: `Paste a job description or role requirements and I can map it to ${profilePossessive} strongest supporting projects. I will cite the project pages I use.`,
-        sources: [aboutSource, allWorkSource],
-      };
-    }
-
+  // Recruiter screening presets (instant, precise answers from site content).
+  // Order: work auth, then relocation, then availability — "relocate/remote"
+  // must win over the broad "open to" availability trigger.
+  if (includesAny(question, workAuthKeywords)) {
     return {
-      content: `Best matching case studies: ${matches
-        .map((project) => project.title)
-        .join(
-          ", ",
-        )}. Open the linked case studies below; those pages are the proof to use for this role.`,
-      sources: matches.map(projectSource),
+      content: assistantContent.screening.workAuthorization,
+      sources: [aboutSource, profileSource],
+    };
+  }
+  if (includesAny(question, relocationKeywords)) {
+    return {
+      content: assistantContent.screening.location,
+      sources: [aboutSource, profileSource],
+    };
+  }
+  if (includesAny(question, availabilityKeywords)) {
+    return {
+      content: assistantContent.screening.availability,
+      sources: [profileSource, aboutSource],
+    };
+  }
+  if (includesAny(question, roleTypeKeywords)) {
+    return {
+      content: assistantContent.screening.roleType,
+      sources: [aboutSource, allWorkSource],
     };
   }
 
   if (isLocationQuestion(question)) {
     return {
-      content: `${profile.name} is based in ${profile.location}. He studies ${profile.program} at the ${profile.school} and is recruiting for ${profile.seeking} roles.`,
+      content: `I'm based in ${profile.location}. I study ${profile.program} at the ${profile.school} and I'm looking for ${profile.seeking} roles.`,
       sources: [aboutSource, profileSource],
     };
   }
@@ -399,36 +577,21 @@ export function answerPortfolioQuestion(
     return {
       content:
         certificates.length > 0
-          ? `${profilePossessive} certificates: ${formatCertificates()}. They are listed in the Certificates section on the About page.`
-          : `There are no certificates listed on the site yet. The Certificates section on the About page will list them as ${profile.name} earns them.`,
+          ? `My certificates: ${formatCertificates()}. They're in the Certificates section on my About page.`
+          : `I don't have any certificates listed yet - the Certificates section on my About page will show them as I earn them.`,
       sources: [certificatesSource, aboutSource],
     };
   }
 
-  if (
-    includesAny(question, [
-      "course",
-      "courses",
-      "class",
-      "classes",
-      "coursework",
-      "gpa",
-      "grade",
-      "grades",
-      "mark",
-      "marks",
-      "transcript",
-      "academic",
-      "academics",
-      "calculus",
-      "combinatorics",
-      "took",
-      "taken",
-      "taking",
-    ])
-  ) {
+  if (includesAny(question, courseworkKeywords)) {
+    if (!unlocked) {
+      return {
+        content: `I study ${program.degree} at ${program.school} (${program.years}). My term-by-term courses, grades, and GPA are shared with recruiters — unlock them by requesting access on the Courses page.`,
+        sources: [coursesSource],
+      };
+    }
     return {
-      content: `${profile.name} studies ${program.degree} at ${program.school} (${program.years}). ${gpaStats[0]?.label} grade ${gpaStats[0]?.value} (${gpaStats[0]?.detail}); CS average ${gpaStats[1]?.value}, math and statistics average ${gpaStats[2]?.value}. The Courses page lists every term and grade, from first-year calculus and CS through the planned upper-year machine learning and statistics courses.`,
+      content: `I study ${program.degree} at ${program.school} (${program.years}). ${gpaStats[0]?.label} grade ${gpaStats[0]?.value} (${gpaStats[0]?.detail}); CS average ${gpaStats[1]?.value}, math and stats average ${gpaStats[2]?.value}. My Courses page lists every term and grade, from first-year calculus and CS through the planned upper-year ML and statistics courses.`,
       sources: [coursesSource],
     };
   }
@@ -450,7 +613,7 @@ export function answerPortfolioQuestion(
     ])
   ) {
     return {
-      content: `${profile.name} is a ${profile.program} student at the ${profile.school}. The site profile lists education dates as ${profile.educationDates}.`,
+      content: `I'm a ${profile.program} student at the ${profile.school}. My education dates are ${profile.educationDates}.`,
       sources: [aboutSource, profileSource],
     };
   }
@@ -466,7 +629,7 @@ export function answerPortfolioQuestion(
     ])
   ) {
     return {
-      content: `${profile.name} is a ${profile.program} student at the ${profile.school}, based in ${profile.location}. This site presents ${profile.focus.toLowerCase()} work, with personal project case studies separated from formal work experience.`,
+      content: `I'm a ${profile.program} student at the ${profile.school}, based in ${profile.location}. My site shows ${profile.focus.toLowerCase()} work, with personal project case studies kept separate from formal work experience.`,
       sources: [profileSource, aboutSource, allWorkSource, workExperienceSource],
     };
   }
@@ -484,7 +647,7 @@ export function answerPortfolioQuestion(
     ])
   ) {
     return {
-      content: `The site positions ${profile.name} around ${profile.focus.toLowerCase()}. For the exact tools, open the Skillset section; for proof, start with the featured case studies.`,
+      content: `I focus on ${profile.focus.toLowerCase()}. For the exact tools, open my Skillset section; for proof, start with the featured case studies.`,
       sources: [aboutSource, skillsetSource, allWorkSource],
     };
   }
@@ -497,7 +660,7 @@ export function answerPortfolioQuestion(
     if (!christCityProject) {
       return {
         content:
-          "I do not have a published Christ City Ministry case study in the current site index.",
+          "I don't have a published Christ City Ministry case study on the site right now.",
         sources: [workExperienceSource],
       };
     }
@@ -517,14 +680,14 @@ export function answerPortfolioQuestion(
 
   if (includesAny(question, ["linkedin"])) {
     return {
-      content: `This site links to ${profilePossessive} LinkedIn profile, but the agent does not index or answer from LinkedIn page contents. I can answer from the profile, about, projects, work, contact, and resume links available on this site.`,
+      content: `My site links to my LinkedIn, but I don't index or answer from LinkedIn's contents here. I can answer from my profile, about, projects, work, contact, and resume links on this site.`,
       sources: [contactSource, aboutSource],
     };
   }
 
   if (includesAny(question, ["contact", "email", "reach", "github", "message"])) {
     return {
-      content: `Employers can leave their contact information through the contact form on this site, and ${profile.name} will message back by email. His direct email, GitHub, LinkedIn, and resume are also linked in the footer.`,
+      content: `The quickest way to reach me is email: ${profile.email}. You can also leave your info through the contact form and I'll get back to you by email. My GitHub, LinkedIn, and resume are linked in the footer.`,
       sources: [contactSource, resumeSource],
     };
   }
@@ -532,7 +695,7 @@ export function answerPortfolioQuestion(
   if (includesAny(question, ["resume", "cv"])) {
     return {
       content:
-        "The resume is available from the navigation and footer. The strongest supporting proof on the site is the selected work section, especially SPIKE for AI/data systems and TrueCost for product engineering.",
+        "My resume is in the navigation and footer. The strongest supporting proof is my selected work - especially SPIKE for AI/data systems and TrueCost for product engineering.",
       sources: [resumeSource, ...projects.slice(0, 2).map(projectSource)],
     };
   }
@@ -557,10 +720,10 @@ export function answerPortfolioQuestion(
     return {
       content:
         aiProjects.length > 0
-          ? `${profilePossessive} clearest AI project is ${aiProjects.map((project) => project.title).join(", ")}. ${aiProjects
+          ? `My clearest AI project is ${aiProjects.map((project) => project.title).join(", ")}. ${aiProjects
               .map(formatProject)
               .join("\n")}`
-          : "The current project list does not include a dedicated AI project beyond the AI agent interface on this homepage.",
+          : "I don't have a dedicated AI project beyond this assistant on my homepage right now.",
       sources: aiProjects.length > 0 ? aiProjects.map(projectSource) : [profileSource],
     };
   }
@@ -597,10 +760,10 @@ export function answerPortfolioQuestion(
     return {
       content:
         backendProjects.length > 0
-          ? `Good backend proof on the site: ${backendProjects
+          ? `Good backend proof on my site: ${backendProjects
               .map((project) => project.title)
               .join(", ")}. ${backendProjects.map(formatProject).join("\n")}`
-          : "The site emphasizes backend and data engineering, but I do not see a matching backend case study in the current index.",
+          : "My site leans backend and data engineering, but I don't see a matching backend case study right now.",
       sources:
         backendProjects.length > 0
           ? [skillsetSource, ...backendProjects.map(projectSource)]
@@ -632,7 +795,7 @@ export function answerPortfolioQuestion(
       ]);
     });
     return {
-      content: `The strongest full-stack examples are ${fullStackProjects
+      content: `My strongest full-stack examples are ${fullStackProjects
         .slice(0, 3)
         .map((project) => project.title)
         .join(", ")}. ${fullStackProjects.slice(0, 3).map(formatProject).join("\n")}`,
@@ -650,7 +813,7 @@ export function answerPortfolioQuestion(
       (project) => project.category.toLowerCase() === "work experience",
     );
     return {
-      content: `${profile.name} has ${personalProjects.length} personal project case studies and ${workExperience.length} work experience case studies on the site. Featured projects include ${projects
+      content: `I have ${personalProjects.length} personal project case studies and ${workExperience.length} work experience case studies on the site. Featured ones include ${projects
         .filter((project) => project.featured)
         .map((project) => project.title)
         .join(", ")}.`,
@@ -664,7 +827,7 @@ export function answerPortfolioQuestion(
 
   if (isTechStackQuestion(rawQuestion)) {
     return {
-      content: `The clearest overview is the Skillset section on the About page. It groups ${profilePossessive} tools as ${formatSkillsetGroups()}.`,
+      content: `The clearest overview is my Skillset section on the About page - it groups my tools as ${formatSkillsetGroups()}.`,
       sources: [skillsetSource],
     };
   }
@@ -682,20 +845,20 @@ export function answerPortfolioQuestion(
     ])
   ) {
     return {
-      content: `${profile.name} is open to ${profile.seeking} roles across software engineering, data, and ML. The current case studies are personal projects, separated from formal work experience on the work page.`,
+      content: `I'm open to ${profile.seeking} roles across software engineering, data, and ML. My current case studies are personal projects, kept separate from formal work experience on my work page.`,
       sources: [profileSource, ...projects.slice(0, 3).map(projectSource)],
     };
   }
 
   if (includesAny(question, ["now", "current", "learning", "reading"])) {
     return {
-      content: `The site is currently focused on ${profilePossessive} profile and project work. For current recruiting context, ${profile.name} is open to ${profile.seeking} roles; for technical proof, start with the project pages.`,
+      content: `Right now my site focuses on my profile and project work. For recruiting: I'm open to ${profile.seeking} roles; for technical proof, start with my project pages.`,
       sources: [aboutSource, allWorkSource],
     };
   }
 
   return {
-    content: `I can answer from the site content about ${profilePossessive} projects, tech stack, education, courses and grades, certificates, location, resume, contact info, current work, and co-op fit. Try asking about SPIKE, his GPA, AI projects, or ${profile.seeking}.`,
+    content: `I can answer about my projects, tech stack, education, courses and grades, certificates, location, resume, contact info, current work, and co-op fit. Try asking about SPIKE, my GPA, my AI projects, or ${profile.seeking}.`,
     sources: [profileSource, aboutSource, coursesSource, allWorkSource],
   };
 }

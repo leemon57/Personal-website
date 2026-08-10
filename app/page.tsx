@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ContactForm } from "@/components/ContactForm";
 import { PortfolioAgent } from "@/components/PortfolioAgent";
 import { getAllWork } from "@/lib/content";
-import { profile, profileFacts } from "@/lib/profile";
+import { profile } from "@/lib/profile";
 import { pageContent } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -55,40 +55,33 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
         type="application/ld+json"
       />
-      <div className="home-stack">
-        <section aria-labelledby="intro-title" className="intro agent-intro">
-          <h1 className="sr-only" id="intro-title">
-            {profile.name}
-          </h1>
-          <p className="lede">{pageContent.home.introLede}</p>
-          <dl className="profile-facts" aria-label="Profile facts">
-            {profileFacts.map((fact) => (
-              <div key={fact.label}>
-                <dt>{fact.label}</dt>
-                <dd>{fact.value}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
 
-        <div data-reveal>
-          <PortfolioAgent projects={agentProjects} />
-        </div>
+      <section className="home-ask-head" data-reveal>
+        <h1 className="home-ask-title">Ask me anything.</h1>
+        <p className="home-ask-sub">
+          This is an AI version of me. Ask about my projects, tech stack, or
+          Winter 2027 co-op fit and I&apos;ll give you a straight answer, with
+          sources.
+        </p>
+      </section>
 
-        <section
-          aria-labelledby="contact-title"
-          className="contact-panel"
-          data-reveal
-          id="contact"
-        >
-          <div className="contact-panel-copy">
-            <p className="caps">{pageContent.home.contact.eyebrow}</p>
-            <h2 id="contact-title">{pageContent.home.contact.title}</h2>
-            <p className="muted">{pageContent.home.contact.body}</p>
-          </div>
-          <ContactForm />
-        </section>
+      <div className="home-ask" data-reveal>
+        <PortfolioAgent projects={agentProjects} />
       </div>
+
+      <section
+        aria-labelledby="contact-title"
+        className="contact-panel"
+        data-reveal
+        id="contact"
+      >
+        <div className="contact-panel-copy">
+          <p className="caps">{pageContent.home.contact.eyebrow}</p>
+          <h2 id="contact-title">{pageContent.home.contact.title}</h2>
+          <p className="muted">{pageContent.home.contact.body}</p>
+        </div>
+        <ContactForm />
+      </section>
     </div>
   );
 }

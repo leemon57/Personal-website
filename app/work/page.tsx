@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import { ProjectCard } from "@/components/ProjectCard";
-import { getWorkExperience } from "@/lib/content";
+import { BentoCard } from "@/components/ui/BentoCard";
+import { BentoGrid } from "@/components/ui/BentoGrid";
+import { Section } from "@/components/ui/Section";
+import { getCaseStudyHref, getWorkExperience } from "@/lib/content";
 import { pageContent } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -16,32 +18,31 @@ export default async function WorkIndexPage() {
 
   return (
     <div className="layout">
-      <div className="prose">
-        <header style={{ marginBottom: "2.5rem" }}>
-          <h1>{pageContent.work.title}</h1>
-          <p className="muted" style={{ marginTop: "0.75rem" }}>
-            {pageContent.work.lede}
-          </p>
-        </header>
-        <section aria-labelledby="work-experience" className="work-group">
-          <p className="caps" id="work-experience">
-            {pageContent.work.sectionLabel}
-          </p>
-          {workExperience.length > 0 ? (
-            <div>
-              {workExperience.map((entry, index) => (
-                <ProjectCard
-                  key={entry.frontmatter.slug}
-                  index={index + 1}
-                  project={entry.frontmatter}
-                />
-              ))}
-            </div>
-          ) : (
-            <p className="muted section-note">{pageContent.work.emptyText}</p>
-          )}
-        </section>
-      </div>
+      <Section lead={pageContent.work.lede} title={pageContent.work.title}>
+        {workExperience.length > 0 ? (
+          <BentoGrid className="projects-bento">
+            {workExperience.map((entry) => (
+              <BentoCard
+                col={3}
+                href={getCaseStudyHref(entry.frontmatter)}
+                key={entry.frontmatter.slug}
+                title={entry.frontmatter.title}
+              >
+                <p className="bento-sub">{entry.frontmatter.subtitle}</p>
+                {entry.frontmatter.stack.length ? (
+                  <ul className="proj-tags">
+                    {entry.frontmatter.stack.slice(0, 4).map((tech) => (
+                      <li key={tech}>{tech}</li>
+                    ))}
+                  </ul>
+                ) : null}
+              </BentoCard>
+            ))}
+          </BentoGrid>
+        ) : (
+          <p className="muted section-note">{pageContent.work.emptyText}</p>
+        )}
+      </Section>
     </div>
   );
 }

@@ -34,18 +34,39 @@ export function Atmosphere() {
     let targetY = 0;
     let currentX = 0;
     let currentY = 0;
+    // Cursor-following glow: raw pixel coordinates, smoothed so it trails gently.
+    let targetCx = -9999;
+    let targetCy = -9999;
+    let currentCx = -9999;
+    let currentCy = -9999;
+    let seenPointer = false;
 
     function onPointerMove(event: PointerEvent) {
       targetX = event.clientX / window.innerWidth - 0.5;
       targetY = event.clientY / window.innerHeight - 0.5;
+      targetCx = event.clientX;
+      targetCy = event.clientY;
+      if (!seenPointer) {
+        // Jump to the first position so the glow doesn't sweep in from a corner.
+        currentCx = targetCx;
+        currentCy = targetCy;
+        seenPointer = true;
+      }
     }
 
     function tick() {
       currentX += (targetX - currentX) * 0.05;
       currentY += (targetY - currentY) * 0.05;
+      currentCx += (targetCx - currentCx) * 0.12;
+      currentCy += (targetCy - currentCy) * 0.12;
       if (node) {
         node.style.setProperty("--mx", currentX.toFixed(4));
         node.style.setProperty("--my", currentY.toFixed(4));
+        node.style.setProperty("--cx", `${currentCx.toFixed(1)}px`);
+        node.style.setProperty("--cy", `${currentCy.toFixed(1)}px`);
+        if (seenPointer) {
+          node.dataset.pointer = "true";
+        }
       }
       frame = window.requestAnimationFrame(tick);
     }
@@ -62,7 +83,9 @@ export function Atmosphere() {
   return (
     <div aria-hidden="true" className="atmosphere" ref={ref}>
       <div className="glow" />
+      <div className="glow-cursor" />
       <div className="grid" />
+      <div className="grain" />
     </div>
   );
 }

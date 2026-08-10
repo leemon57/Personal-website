@@ -16,8 +16,10 @@ This site is a Next.js app. Most public-facing information lives under `content/
 | Skillset groups                            | `content/skillset.json`                               |
 | Certificates                               | `content/certificates.json`                           |
 | Courses, grades, GPA strip, and notes      | `content/courses.json`                                |
+| Photography & Life page (photos/reading/playlist/map) | `content/photography.json`                 |
 | Personal project case studies              | `content/projects/[slug].mdx`                         |
 | Work experience case studies               | `content/work/[slug].mdx`                             |
+| Optional case-study hero banner            | `heroImage` frontmatter (path under `public/`)        |
 | Top navigation                             | `content/site.json`                                   |
 | Footer links/email/location                | `content/site.json`                                   |
 | Resume PDF                                 | `public/resume.pdf`                                   |
@@ -105,6 +107,36 @@ To add a course with a title or grade, use an object:
 ```
 
 For each term, `term` and `courses` are required. `id` is optional; the site derives it from the term name. Use `status: "completed"` for finished terms and `status: "planned"` for future terms. Add `average`, `gpa`, or `coop: true` only when they apply.
+
+## Analytics
+
+Recruiter signal is tracked with Vercel Analytics custom events (`assistant_question`,
+`project_view`, `access_unlocked` / `access_requested`) — view them in the Vercel
+dashboard once deployed. Wired in `components/PortfolioAgent.tsx`, `components/TrackView.tsx`
+(on case-study pages), and `components/AccessGate.tsx` via `lib/analytics.ts`.
+
+## Photography & Life
+
+The Photography & Life page pulls from one JSON file. All values below are safe
+starting points — replace them with your own.
+
+**Photography & Life** (`content/photography.json`, via `lib/photography.ts`) →
+`/photography` (sidebar label "life"):
+
+- `photos`: gallery tiles. Each shows a gradient placeholder using `tone`
+  (`sage` / `slate` / `sand` / `dusk` / `moss` / `stone`) until you add a `src`
+  (an image under `public/`, e.g. `/photography/lake.jpg`); `label` is the caption
+  and image alt text.
+- `reading`, `playlist.tracks`, `blog`: plain lists — edit freely.
+- `visited`: places plotted on the world map from `lat` / `lon` (decimal degrees).
+  The "N places" count is derived from this array.
+
+To add the page to (or remove it from) the sidebar, edit the `navigation` array
+in `content/site.json` (the `/photography` → `life` entry).
+
+Put images under `public/` — e.g. `public/photography/` for gallery photos and
+`public/logos/` for any brand logos. Reference them by absolute path
+(`/photography/lake.jpg`).
 
 ## Contact
 
@@ -207,6 +239,7 @@ Important fields:
 - `category`: use `"personal project"` for `content/projects` and `"work experience"` for `content/work`.
 - `date`: used for sitemap freshness and sorting fallback.
 - `status`, `role`, `timeline`, `stack`, `repo`, `demo`: shown in the metadata strip.
+- `heroImage` (optional): path to a full-bleed banner shown above the title, e.g. `/work/foo.jpg` (place the file under `public/`).
 - `featured`: whether it appears on the homepage.
 - `order`: homepage/work display order.
 
@@ -277,11 +310,12 @@ styles/globals.css
 The main tokens are at the top:
 
 ```css
---color-paper
---color-ink
---color-accent
---font-newsreader
---font-jetbrains
+--color-paper     /* #fbf9f9 light surface / warm charcoal in dark */
+--color-ink       /* #121212 primary text */
+--color-accent    /* muted sage */
+--font-serif      /* Playfair Display — headlines */
+--font-body       /* Archivo — body */
+--font-jetbrains  /* JetBrains Mono — labels / code */
 --width-prose
 --width-layout
 ```

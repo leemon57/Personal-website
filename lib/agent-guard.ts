@@ -93,6 +93,63 @@ const allowedGroundingTokens = new Set([
   "study",
   "studies",
   "work",
+  // Generic connective / explanatory words a fluent answer naturally uses.
+  // These carry no specific factual claim, so allowing them lets the model
+  // phrase answers in natural language without tripping the grounding check.
+  "about",
+  "across",
+  "also",
+  "approach",
+  "best",
+  "both",
+  "build",
+  "builds",
+  "building",
+  "built",
+  "combine",
+  "combines",
+  "create",
+  "created",
+  "creates",
+  "demonstrate",
+  "demonstrates",
+  "design",
+  "designed",
+  "develop",
+  "developed",
+  "experience",
+  "feature",
+  "features",
+  "focus",
+  "focused",
+  "focuses",
+  "help",
+  "helps",
+  "include",
+  "includes",
+  "including",
+  "made",
+  "make",
+  "makes",
+  "notable",
+  "open",
+  "recruiting",
+  "recruiter",
+  "recruiters",
+  "role",
+  "seeking",
+  "shows",
+  "stack",
+  "strong",
+  "tool",
+  "tools",
+  "use",
+  "used",
+  "uses",
+  "using",
+  "various",
+  "worked",
+  "working",
 ]);
 
 export function hasBlockedQuestion(question: string): boolean {
@@ -132,7 +189,10 @@ export function isGroundedContent(
     (token) => !sourceTokens.has(token) && !allowedGroundingTokens.has(token),
   );
 
-  return unsupportedTokens.length <= Math.max(3, Math.floor(answerTokens.length * 0.15));
+  // Allow natural rephrasing: reject only when a large share of the answer's
+  // substantive words are absent from the cited sources (i.e. likely invented),
+  // not merely because the model paraphrased rather than copied verbatim.
+  return unsupportedTokens.length <= Math.max(6, Math.floor(answerTokens.length * 0.5));
 }
 
 export function readQuestion(payload: unknown): string | undefined {

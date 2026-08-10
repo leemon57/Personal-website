@@ -1,4 +1,10 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
+import { AccessGate } from "@/components/AccessGate";
+import { BentoCard } from "@/components/ui/BentoCard";
+import { BentoGrid } from "@/components/ui/BentoGrid";
+import { Section } from "@/components/ui/Section";
+import { ACCESS_COOKIE, isSessionUnlocked } from "@/lib/access";
 import { courseNotes, gpaStats, program, type Term, terms } from "@/lib/courses";
 import { profile } from "@/lib/profile";
 
@@ -7,6 +13,10 @@ export const metadata: Metadata = {
   description: `Coursework for ${profile.name} — ${program.degree} at the ${program.school}, ${program.years}.`,
   alternates: {
     canonical: "/courses",
+  },
+  robots: {
+    index: false,
+    follow: false,
   },
 };
 
@@ -29,20 +39,39 @@ function formatTermGrade(entry: Term): string | null {
   return parts.length > 0 ? parts.join(" · ") : null;
 }
 
-export default function CoursesPage() {
+export default async function CoursesPage() {
+  const store = await cookies();
+  const unlocked = await isSessionUnlocked(store.get(ACCESS_COOKIE)?.value);
+
+  if (!unlocked) {
+    return (
+      <div className="layout">
+        <Section
+          eyebrow="Academics"
+          lead={`${program.degree} · ${program.school} · ${program.years}.`}
+          title="Courses"
+        >
+          <div className="about-panel courses-locked" data-reveal>
+            <p className="bento-label">Recruiter access</p>
+            <p className="muted">
+              The full transcript — term-by-term courses, grades, and GPA — is
+              shared with recruiters. Leave a quick message to unlock it.
+            </p>
+            <AccessGate next="/courses" />
+          </div>
+        </Section>
+      </div>
+    );
+  }
+
   return (
     <div className="layout">
-      <article className="courses-page">
-        <header className="courses-header">
-          <p className="caps">Academics</p>
-          <h1>Courses</h1>
-          <p className="lede muted">
-            {program.degree} · {program.school} · {program.years}. Grades are shown for
-            completed terms; later terms are planned.
-          </p>
-        </header>
-
-        <dl className="gpa-strip" data-reveal aria-label="Grade summary">
+      <Section
+        eyebrow="Academics"
+        lead={`${program.degree} · ${program.school} · ${program.years}. Grades are shown for completed terms; later terms are planned.`}
+        title="Courses"
+      >
+        <dl aria-label="Grade summary" className="gpa-strip" data-reveal>
           {gpaStats.map((stat) => (
             <div key={stat.label}>
               <dt>{stat.label}</dt>
@@ -52,22 +81,24 @@ export default function CoursesPage() {
           ))}
         </dl>
 
-        <div className="term-list">
+        <BentoGrid className="courses-bento">
           {terms.map((entry) => {
             const termGrade = formatTermGrade(entry);
-
             return (
-              <section
-                aria-labelledby={`term-${entry.id}`}
-                className={`term ${entry.status}`}
-                data-reveal
+              <BentoCard
+                className={`term-card ${entry.status}`}
+                col={3}
                 key={entry.id}
               >
-                <div className="term-head">
-                  <h2 id={`term-${entry.id}`}>{entry.term}</h2>
+                <div className="term-card-head">
+                  <h3 className="bento-title">{entry.term}</h3>
                   <div className="term-meta">
-                    {entry.coop ? <span className="term-tag coop">co-op</span> : null}
-                    <span className={`term-tag ${entry.status}`}>{entry.status}</span>
+                    {entry.coop ? (
+                      <span className="term-tag coop">co-op</span>
+                    ) : null}
+                    <span className={`term-tag ${entry.status}`}>
+                      {entry.status}
+                    </span>
                     {entry.status === "completed" && termGrade ? (
                       <span className="term-grade">{termGrade}</span>
                     ) : null}
@@ -95,22 +126,26 @@ export default function CoursesPage() {
                     </li>
                   ))}
                 </ul>
-              </section>
+              </BentoCard>
             );
           })}
-        </div>
+        </BentoGrid>
 
-        <section aria-labelledby="courses-notes" className="courses-notes" data-reveal>
-          <p className="caps" id="courses-notes">
+        <section
+          aria-labelledby="courses-notes"
+          className="about-panel courses-notes-card"
+          data-reveal
+        >
+          <p className="bento-label" id="courses-notes">
             Notes
           </p>
-          <ul>
+          <ul className="courses-notes-list">
             {courseNotes.map((note) => (
               <li key={note}>{note}</li>
             ))}
           </ul>
         </section>
-      </article>
+      </Section>
     </div>
   );
 }

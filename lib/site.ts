@@ -88,6 +88,13 @@ export interface PageContent {
   };
 }
 
+export interface AssistantScreening {
+  availability: string;
+  location: string;
+  workAuthorization: string;
+  roleType: string;
+}
+
 export interface AssistantContent {
   suggestedQuestions: string[];
   initialMessage: string;
@@ -97,6 +104,7 @@ export interface AssistantContent {
   inputLabel: string;
   inputPlaceholder: string;
   thinkingStatus: string;
+  screening: AssistantScreening;
 }
 
 export interface ContactFormContent {
