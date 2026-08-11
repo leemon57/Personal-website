@@ -272,7 +272,7 @@ const courseworkKeywords = [
   "taking",
 ];
 
-/** True when a question is about coursework/grades/GPA (recruiter-gated data). */
+/** True when a question is about coursework (course topics only; no grades). */
 export function isCourseworkQuestion(rawQuestion: string): boolean {
   return includesAny(normalize(rawQuestion), courseworkKeywords);
 }
@@ -851,7 +851,7 @@ export function answerPortfolioQuestion(
   }
 
   return {
-    content: `I can answer about my projects, tech stack, education, courses and grades, certificates, location, resume, contact info, current work, and co-op fit. Try asking about SPIKE, my GPA, my AI projects, or ${profile.seeking}.`,
+    content: `I can answer about my projects, tech stack, education, coursework, certificates, location, resume, contact info, current work, and co-op fit. Try asking about SPIKE, my AI projects, my tech stack, or ${profile.seeking}.`,
     sources: [profileSource, aboutSource, coursesSource, allWorkSource],
   };
 }

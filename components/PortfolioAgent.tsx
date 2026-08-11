@@ -450,12 +450,20 @@ export function PortfolioAgent({ projects }: PortfolioAgentProps) {
   }
 
   function primeJobMatch() {
-    setInput("Match yourself to this job description: ");
+    if (isAsking) {
+      return;
+    }
+    const prompt = "Match yourself to this job description:\n";
+    setInput(prompt);
     const field = inputRef.current;
     if (field) {
       field.focus();
-      const end = field.value.length;
-      window.setTimeout(() => field.setSelectionRange(end, end), 0);
+      field.scrollIntoView({
+        block: "center",
+        behavior: reduced ? "auto" : "smooth",
+      });
+      // Move the caret to the end once React has applied the new value.
+      window.setTimeout(() => field.setSelectionRange(prompt.length, prompt.length), 0);
     }
   }
 
@@ -555,7 +563,13 @@ export function PortfolioAgent({ projects }: PortfolioAgentProps) {
             <button
               disabled={isAsking}
               key={question}
-              onClick={() => void ask(question)}
+              onClick={() =>
+                // "Match … job description" primes the input so the recruiter
+                // can paste the posting, instead of firing off immediately.
+                /job description/iu.test(question)
+                  ? primeJobMatch()
+                  : void ask(question)
+              }
               style={{ "--i": index } as CSSProperties}
               type="button"
             >
