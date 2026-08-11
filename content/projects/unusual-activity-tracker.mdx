@@ -1,0 +1,116 @@
+---
+title: "Unusual Activity Tracker - market anomaly alerts"
+subtitle: "Always-on Python service that watches Reddit chatter and Hyperliquid perp flow for unusual activity. It normalizes two very different sources into one event schema, scores them with engagement and z-score/whale heuristics, dedupes, and pushes only threshold-clearing alerts to a Discord channel, packaged in Docker."
+slug: "unusual-activity-tracker"
+category: "personal project"
+date: "2025-11-11"
+status: "complete"
+role: "Solo build"
+timeline: "2025"
+stack: ["Python", "asyncio", "WebSockets", "PRAW", "Docker", "Discord API"]
+repo: "https://github.com/leemon57/Unusual_activity_tracker"
+featured: true
+order: 5
+---
+
+<p className="caps">The problem</p>
+
+Unusual market activity shows up in two very different places: retail attention spiking on Reddit, and large directional bets landing on-chain in perpetual futures. Both are noisy, high-volume, and easy to miss in real time. Watching either by hand means refreshing feeds and eyeballing order flow, which does not scale and never tells you the moment something actually moves.
+
+Unusual Activity Tracker is a small always-on service that watches both and only speaks up when something clears a threshold. It pulls scored posts from subreddits like r/wallstreetbets and runs a whale-flow detector over Hyperliquid perps, collapses everything into one event shape, and pushes the survivors to a Discord channel so the alerting is the only thing a human has to read.
+
+<p className="caps">My role</p>
+
+This was a solo build. I wrote both feed adapters, the Hyperliquid streaming detector and its scoring, the normalized event contract that ties them together, the dedupe and scheduling layer in `main.py`, and the Discord delivery and rendering, then packaged the whole thing in Docker to run unattended.
+
+The interesting engineering was less about any single source and more about the seam between them: getting two sources with completely different cadences - a polled REST list of posts versus a live trade stream - to feed one consistent alerting pipeline without the rest of the system caring which was which.
+
+<p className="caps">System design</p>
+
+<figure className="fig">
+  <svg viewBox="0 0 680 300" className="diagram" role="img" aria-label="Unusual Activity Tracker two-source confluence diagram">
+    <text x="20" y="34" className="label-faint">REDDIT</text>
+    <text x="20" y="140" className="label-faint">HYPERLIQUID</text>
+    <text x="370" y="34" className="label-faint">MERGE</text>
+    <text x="558" y="34" className="label-faint">SINK</text>
+
+    <rect className="node-soft" x="20" y="48" width="124" height="50" rx="4" />
+    <text x="82" y="69" textAnchor="middle">Reddit</text>
+    <text x="82" y="85" textAnchor="middle">PRAW poll</text>
+
+    <rect className="node" x="170" y="48" width="120" height="50" rx="4" />
+    <text x="230" y="69" textAnchor="middle">score + flair</text>
+    <text x="230" y="85" textAnchor="middle">0 to 1</text>
+
+    <rect className="arrow dash" x="12" y="154" width="288" height="96" rx="4" />
+    <text x="24" y="171" className="label-faint">background thread</text>
+
+    <rect className="node" x="24" y="182" width="122" height="56" rx="4" />
+    <text x="85" y="205" textAnchor="middle">WS trades</text>
+    <text x="85" y="221" textAnchor="middle">+ /info REST</text>
+
+    <rect className="node" x="166" y="182" width="120" height="56" rx="4" />
+    <text x="226" y="205" textAnchor="middle">rolling state</text>
+    <text x="226" y="221" textAnchor="middle">5m deques</text>
+
+    <rect className="node accent" x="334" y="118" width="128" height="62" rx="4" style={{ strokeWidth: 1.5 }} />
+    <text x="398" y="145" textAnchor="middle">Normalized</text>
+    <text x="398" y="161" textAnchor="middle">event schema</text>
+
+    <rect className="node" x="496" y="123" width="84" height="52" rx="4" />
+    <text x="538" y="145" textAnchor="middle">dedupe</text>
+    <text x="538" y="161" textAnchor="middle">fingerprint</text>
+
+    <rect className="node-soft" x="596" y="123" width="72" height="52" rx="4" />
+    <text x="632" y="145" textAnchor="middle">Discord</text>
+    <text x="632" y="161" textAnchor="middle">bot</text>
+
+    <path className="arrow" d="M144 73 L170 73" markerEnd="url(#uat-ah)" />
+    <path className="arrow" d="M290 73 L334 134" markerEnd="url(#uat-ah)" />
+    <path className="arrow" d="M146 210 L166 210" markerEnd="url(#uat-ah)" />
+    <path className="arrow" d="M286 207 L334 164" markerEnd="url(#uat-ah)" />
+    <path className="arrow" d="M462 149 L496 149" markerEnd="url(#uat-ah)" />
+    <path className="arrow" d="M580 149 L596 149" markerEnd="url(#uat-ah)" />
+
+    <text x="306" y="98" className="label-faint">score</text>
+    <text x="306" y="190" className="label-faint">pulse</text>
+
+    <defs>
+      <marker id="uat-ah" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+        <path d="M0,0 L6,4 L0,8" fill="none" stroke="currentColor" strokeWidth="1" />
+      </marker>
+    </defs>
+  </svg>
+  <figcaption>
+    Two sources with opposite cadences - a polled Reddit feed and a streamed Hyperliquid background thread - converge into one normalized event, which is then deduped by fingerprint and pushed to a single Discord sink once it clears the score threshold.
+  </figcaption>
+</figure>
+
+Everything is built around one shared contract. Each source emits the same normalized event dict - `source`, `kind`, `symbol`, `score`, `title`, `link`, `payload`, and a sha256 `fingerprint` - so the rest of the pipeline never special-cases where an event came from. `main.py` is the orchestrator: it starts the Hyperliquid background services once, schedules the Reddit job on a minute cadence and the Hyperliquid job on a second cadence, dedupes by fingerprint, prints each event as JSONL, and forwards anything at or above `MIN_SCORE` to Discord.
+
+Reddit is the simple path. A PRAW client pulls the newest posts, an engagement-per-minute figure (upvotes plus half the comment count, over post age) is squashed into a 0-to-1 score, and posts are filtered by flair or title tag before they ever become events.
+
+Hyperliquid is the involved path and runs on two speeds. A daemon thread hosts an asyncio loop with a WebSocket worker - subscribed to per-coin `trades` and best-bid/offer - and a REST poller that hits `metaAndAssetCtxs` for open interest, mark, and oracle price. Those continuously fill rolling five-minute per-coin state. Separately, the scheduler "pulses" `collect_events` on an interval, which reads that state and computes composite short and long scores. A single lock guards the shared state across the two threads.
+
+<p className="caps">Key technical decisions</p>
+
+- **One normalized event schema across every source.** A Reddit post and a Hyperliquid flow alert become the same dict with the same `fingerprint`, so dedupe, score thresholds, JSONL logging, and Discord rendering are written once and never branch on source. Adding a source means writing an adapter, not editing the pipeline.
+- **Two-speed Hyperliquid ingestion.** High-rate trade and order-book data stream into rolling deques on a background daemon thread, while the scheduler pulses scoring at a low rate. That decouples ingestion cadence from alert cadence, so a quiet or a chaotic market does not change how often alerts are evaluated. A shared `threading.Lock` keeps `_STATE` consistent across the async loop and the scheduler thread.
+- **z-score anomaly detection over rolling windows.** Open-interest change and mark-to-oracle premium are converted into z-scores against their own recent history, so the detector reacts to deviations from normal rather than fixed magic numbers, and calibrates itself per coin.
+- **Composite, weighted whale scoring.** The short and long scores blend an OI z-score, weighted whale notional, and signed premium. Whale prints - taker fills above a notional floor - are attributed to the buyer or seller address and multiplied by a hot-reloadable JSON/CSV watchlist weight, so flow from tagged addresses counts for more. An alert only fires when score, book skew, and whale notional all agree, with per-key throttling so the channel does not get spammed.
+- **Resilience as the default.** Exponential backoff wraps Reddit, Discord, the WebSocket, and the REST poller; the socket reconnects forever and tolerates quiet streams; `websockets` is an optional import so the app still boots without it; Discord respects 429 rate limits and chunks messages under the 2000-char cap; and a bounded `SEEN` set keeps dedupe memory from growing without limit.
+- **Config-as-environment, shipped in Docker.** Coins, windows, thresholds, cadences, subreddits, flairs, and the watchlist path are all environment-driven and stripped of inline comments at read time, so behavior is tuned without code changes. A slim Python image runs the whole thing as one long-lived process.
+
+<p className="caps">Results</p>
+
+The tracker runs end-to-end as a single Dockerized process. On boot it starts the Hyperliquid background loop, schedules both jobs, runs them once immediately, then streams normalized events to stdout as JSONL while pushing every threshold-clearing alert to Discord. Reddit posts arrive scored and flair-filtered; Hyperliquid alerts arrive with the top whale sellers or buyers, OI and premium z-scores, book skew, and raw versus weighted notional, all formatted into readable Discord markdown.
+
+The Hyperliquid module is the substantial piece: a background WebSocket and REST ingestion loop, rolling five-minute state per coin, separate short and long composite scores, address-level whale attribution, a watchlist with hot reload and weight multipliers, per-key alert throttling, and a debug mode that logs internal metrics even when nothing fires. The Reddit adapter, the Discord bot sender, and the renderer round it out, all sharing the one event contract, with graceful `RUN_ONCE` and `SIGINT`/`SIGTERM` shutdown handling in the orchestrator.
+
+<p className="caps">What I would do differently</p>
+
+I would persist state instead of holding everything in memory. The dedupe set and the rolling windows reset on restart, so a container bounce drops recent history and can re-alert; a small store like SQLite or Redis would survive restarts and let dedupe be shared across processes.
+
+I would also validate the Hyperliquid signal before trusting the scores. The scoring is honestly heuristic - open-interest units are treated as dimensionless and the blend weights are hand-picked - so I would backtest alerts against the price moves that followed them, calibrate the thresholds, and confirm the short and long composites actually carry signal rather than just firing on volume.
+
+Finally, I would finish or remove the parts that are only half-present. The OpenAI configuration and a Truth Social rendering branch exist in config and code but are not wired to a working path. I would either implement an LLM summarization step over the event payloads - turning a raw whale alert into a one-line read - or delete the dead surface so the system stays honest about exactly what it does.

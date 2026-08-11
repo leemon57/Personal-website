@@ -1,0 +1,33 @@
+{
+  "intro": "Life outside the terminal - places I've wandered, things I'm reading and listening to, and the occasional note.",
+  "photos": [
+    { "label": "Mountain lake", "tone": "sage" },
+    { "label": "Alpine trail", "tone": "slate" },
+    { "label": "Old town street", "tone": "sand" },
+    { "label": "Coast at dusk", "tone": "dusk" },
+    { "label": "Forest path", "tone": "moss" },
+    { "label": "City rooftops", "tone": "stone" }
+  ],
+  "reading": [
+    { "title": "The Pragmatic Programmer", "author": "Hunt & Thomas" },
+    { "title": "Designing Data-Intensive Applications", "author": "Kleppmann" }
+  ],
+  "playlist": {
+    "title": "Lo-Fi Beats for Coding",
+    "tracks": [
+      { "title": "Focus", "artist": "Lo-Fi", "duration": "2:02" },
+      { "title": "Late Commit", "artist": "Lo-Fi", "duration": "2:45" },
+      { "title": "Deep Work", "artist": "Lo-Fi", "duration": "3:11" },
+      { "title": "Cooldown", "artist": "Lo-Fi", "duration": "2:30" }
+    ]
+  },
+  "blog": [
+    {
+      "title": "Notes are coming soon",
+      "excerpt": "Short write-ups on things I build and read will show up here."
+    }
+  ],
+  "visited": [
+    { "name": "Canada", "lat": 43.5, "lon": -80.5 }
+  ]
+}

@@ -1,0 +1,176 @@
+{
+  "profile": {
+    "name": "Hany Jiang",
+    "siteUrl": "https://hanyjiang.com",
+    "email": "hanyjiang@gmail.com",
+    "location": "Waterloo, Ontario",
+    "locationLong": "Waterloo, Ontario, Canada",
+    "school": "University of Waterloo",
+    "program": "Data Science",
+    "educationDates": "2024-2028",
+    "seeking": "WINTER 2027 co-op",
+    "focus": "Backend, data, and ML-adjacent engineering",
+    "headline": "full-stack systems and data tools",
+    "summary": "University of Waterloo Data Science student focused on backend systems, data engineering, data analytics, and ML-adjacent product work.",
+    "github": "https://github.com/leemon57",
+    "linkedin": "https://www.linkedin.com/in/hany-jiang-909250335/",
+    "resume": "/resume.pdf",
+    "address": {
+      "locality": "Waterloo",
+      "region": "Ontario",
+      "country": "CA"
+    },
+    "facts": [
+      {
+        "label": "Based",
+        "value": "Waterloo, Ontario"
+      },
+      {
+        "label": "Education",
+        "value": "Data Science, University of Waterloo - 2024-2028"
+      },
+      {
+        "label": "Seeking",
+        "value": "WINTER 2027 co-op"
+      }
+    ],
+    "links": [
+      {
+        "href": "mailto:hanyjiang@gmail.com",
+        "label": "hanyjiang@gmail.com"
+      },
+      {
+        "href": "https://github.com/leemon57",
+        "label": "github"
+      },
+      {
+        "href": "https://www.linkedin.com/in/hany-jiang-909250335/",
+        "label": "linkedin"
+      },
+      {
+        "href": "/resume.pdf",
+        "label": "resume (pdf)"
+      }
+    ]
+  },
+  "navigation": [
+    {
+      "href": "/#ask-hany",
+      "label": "ask"
+    },
+    {
+      "href": "/about",
+      "label": "about"
+    },
+    {
+      "href": "/projects",
+      "label": "projects"
+    },
+    {
+      "href": "/work",
+      "label": "work"
+    },
+    {
+      "href": "/courses",
+      "label": "courses"
+    },
+    {
+      "href": "/contact",
+      "label": "contact"
+    },
+    {
+      "href": "/resume.pdf",
+      "label": "resume"
+    }
+  ],
+  "pages": {
+    "home": {
+      "metadataDescription": "Hany Jiang builds backend, data, and ML-adjacent engineering. Data Science at the University of Waterloo, based in Waterloo, Ontario, and open to WINTER 2027 co-op roles.",
+      "introLede": "Ask the site about my projects, stack, resume, or Winter 2027 co-op fit.",
+      "contact": {
+        "eyebrow": "Contact",
+        "title": "Leave your info",
+        "body": "If you are hiring or want to talk about a project, leave your contact information and I will message back."
+      }
+    },
+    "about": {
+      "metadataTitle": "About",
+      "metadataDescription": "Hany Jiang is a Data Science student at the University of Waterloo building backend, data, and ML-adjacent engineering.",
+      "eyebrow": "About",
+      "lede": "I am a 3A Data Science student at the University of Waterloo, based in Waterloo, Ontario. As of now, most of my work is backend, data engineering, and data analytics.",
+      "skillset": {
+        "heading": "Skillset",
+        "body": "Grouped by area, drawn from the projects and work on this site."
+      },
+      "certificates": {
+        "heading": "Certificates",
+        "emptyText": "Certifications will be listed here as I complete them."
+      },
+      "featuredWorkHeading": "Start here",
+      "linksHeading": "Links",
+      "knowsAbout": [
+        "Backend systems",
+        "Data engineering",
+        "Applied machine learning",
+        "Python",
+        "C++",
+        "TypeScript",
+        "SQL",
+        "Power BI"
+      ]
+    },
+    "contact": {
+      "metadataTitle": "Contact",
+      "metadataDescription": "Leave your contact information for Hany Jiang.",
+      "eyebrow": "Contact",
+      "title": "Leave your info",
+      "lede": "If a role or project seems like a good fit, leave a note here and I will message back by email."
+    },
+    "projects": {
+      "metadataTitle": "Personal Projects",
+      "metadataDescription": "Personal project case studies by Hany Jiang.",
+      "title": "Personal Projects",
+      "lede": "Self-directed builds, prototypes, and technical case studies.",
+      "sectionLabel": "Personal Projects"
+    },
+    "work": {
+      "metadataTitle": "Work Experience",
+      "metadataDescription": "Formal work experience write-ups by Hany Jiang.",
+      "title": "Work Experience",
+      "lede": "Formal roles and organization-backed work, separated from personal projects.",
+      "sectionLabel": "Work Experience",
+      "emptyText": "Formal experience write-ups will live here separately from personal projects."
+    }
+  },
+  "assistant": {
+    "suggestedQuestions": [
+      "What have you built with AI?",
+      "Match yourself to a job description",
+      "Are you open to Winter 2027 co-op?",
+      "What's your tech stack?",
+      "How can I reach you?"
+    ],
+    "initialMessage": "Hey - I'm Hany, or really an AI version of me. Ask me about my projects, tech stack, coursework, or my Winter 2027 co-op fit and I'll answer straight, with the sources I used.",
+    "eyebrow": "Ask me",
+    "title": "Hany Jiang",
+    "factSuffix": "case studies - courses - skills indexed",
+    "inputLabel": "Ask me a question",
+    "inputPlaceholder": "Ask about my projects, stack, resume, or co-op fit...",
+    "thinkingStatus": "Looking through my site and writing an answer...",
+    "screening": {
+      "availability": "I'm free for the Winter 2027 co-op term - January to April 2027 - full-time for the term, on-site or hybrid.",
+      "location": "I'm based in Waterloo, Ontario, and open to Waterloo, the Greater Toronto Area, or remote. Happy to relocate for the term.",
+      "workAuthorization": "I'm eligible to work in Canada as a co-op student at the University of Waterloo.",
+      "roleType": "I'm after a co-op / internship term for now, not full-time - mostly backend, data engineering, data analytics, and ML-adjacent roles."
+    }
+  },
+  "contactForm": {
+    "defaultError": "Message could not be sent right now.",
+    "successMessage": "Thanks. I received your info and will message back by email.",
+    "timeoutMessage": "Message timed out. Email me directly if this keeps happening.",
+    "rolePlaceholder": "Recruiting, engineering, data...",
+    "submitLabel": "Leave info",
+    "submittingLabel": "Sending",
+    "directEmailLabel": "Email directly"
+  }
+}

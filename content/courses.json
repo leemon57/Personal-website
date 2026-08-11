@@ -1,0 +1,210 @@
+{
+  "program": {
+    "degree": "Honours Data Science (Co-op)",
+    "school": "University of Waterloo",
+    "years": "2024 - 2028"
+  },
+  "terms": [
+    {
+      "term": "Fall 2024",
+      "status": "completed",
+      "courses": [
+        {
+          "code": "CS 135",
+          "title": "Designing Functional Programs"
+        },
+        {
+          "code": "MATH 135",
+          "title": "Algebra for Honours Mathematics"
+        },
+        {
+          "code": "MATH 137",
+          "title": "Calculus 1 for Honours Mathematics"
+        },
+        {
+          "code": "ECON 102",
+          "title": "Introduction to Macroeconomics"
+        },
+        {
+          "code": "ENGL 109",
+          "title": "Introduction to Academic Writing"
+        }
+      ]
+    },
+    {
+      "term": "Winter 2025",
+      "status": "completed",
+      "courses": [
+        {
+          "code": "CS 136",
+          "title": "Elementary Algorithm Design & Data Abstraction"
+        },
+        {
+          "code": "CS 136L",
+          "title": "Tools & Techniques for Software Development"
+        },
+        {
+          "code": "MATH 136",
+          "title": "Linear Algebra 1 for Honours Mathematics"
+        },
+        {
+          "code": "STAT 230",
+          "title": "Probability"
+        },
+        {
+          "code": "AFM 101",
+          "title": "Introduction to Financial Accounting"
+        }
+      ]
+    },
+    {
+      "term": "Spring 2025",
+      "status": "completed",
+      "courses": [
+        {
+          "code": "CS 246",
+          "title": "Object-Oriented Software Development"
+        },
+        {
+          "code": "MATH 138",
+          "title": "Calculus 2 for Honours Mathematics"
+        },
+        {
+          "code": "MATH 235",
+          "title": "Linear Algebra 2 for Honours Mathematics"
+        },
+        {
+          "code": "ECON 101",
+          "title": "Introduction to Microeconomics"
+        },
+        {
+          "code": "AFM 102",
+          "title": "Managerial & Cost Accounting"
+        }
+      ]
+    },
+    {
+      "term": "Winter 2026",
+      "status": "completed",
+      "courses": [
+        {
+          "code": "CS 241",
+          "title": "Foundations of Sequential Programs"
+        },
+        {
+          "code": "CS 245",
+          "title": "Logic & Computation"
+        },
+        {
+          "code": "MATH 237",
+          "title": "Calculus 3 for Honours Mathematics"
+        },
+        {
+          "code": "STAT 231",
+          "title": "Statistics"
+        },
+        {
+          "code": "HRM 200",
+          "title": "Basic Human Resources Management"
+        }
+      ]
+    },
+    {
+      "term": "Fall 2026",
+      "status": "planned",
+      "courses": [
+        {
+          "code": "CS 240",
+          "title": "Data Structures & Data Management"
+        },
+        {
+          "code": "CS 251",
+          "title": "Computer Organization & Design"
+        },
+        {
+          "code": "CS 370",
+          "title": "Numerical Computation"
+        },
+        {
+          "code": "MATH 239",
+          "title": "Introduction to Combinatorics"
+        },
+        {
+          "code": "STAT 332",
+          "title": "Sampling & Experimental Design"
+        }
+      ]
+    },
+    {
+      "term": "Spring 2027",
+      "status": "planned",
+      "coop": true,
+      "courses": [
+        {
+          "code": "CS 341",
+          "title": "Algorithms"
+        },
+        {
+          "code": "CS 348",
+          "title": "Introduction to Database Management"
+        },
+        {
+          "code": "STAT 331",
+          "title": "Applied Linear Models"
+        },
+        {
+          "code": "STAT 333",
+          "title": "Stochastic Processes 1"
+        }
+      ]
+    },
+    {
+      "term": "Winter 2028",
+      "status": "planned",
+      "courses": [
+        {
+          "code": "CS 431",
+          "title": "Data-Intensive Distributed Computing"
+        },
+        {
+          "code": "STAT 330",
+          "title": "Mathematical Statistics"
+        },
+        {
+          "code": "STAT 341",
+          "title": "Computational Statistics & Data Analysis"
+        },
+        {
+          "code": "STAT 443",
+          "title": "Forecasting"
+        },
+        "ENGL 379"
+      ]
+    },
+    {
+      "term": "Fall 2028",
+      "status": "planned",
+      "coop": true,
+      "courses": [
+        "CS 479",
+        {
+          "code": "CS 480",
+          "title": "Introduction to Machine Learning"
+        },
+        {
+          "code": "CS 484",
+          "title": "Computational Vision"
+        },
+        {
+          "code": "STAT 442",
+          "title": "Data Visualization"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Co-op work terms (Waterloo Works) are interspersed between study terms; tagged on the terms above.",
+    "Upper-year focus leans into machine learning (CS 480 / 484 / 485 / 486) and statistical learning (STAT 440-444).",
+    "GEOG 225 is planned as a breadth elective, term to be scheduled."
+  ]
+}
