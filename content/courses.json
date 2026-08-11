@@ -186,7 +186,10 @@
       "status": "planned",
       "coop": true,
       "courses": [
-        "CS 479",
+        {
+          "code": "CS 479",
+          "title": "Neural Networks"
+        },
         {
           "code": "CS 480",
           "title": "Introduction to Machine Learning"
