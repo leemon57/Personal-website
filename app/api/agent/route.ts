@@ -294,24 +294,11 @@ export async function POST(request: Request) {
   const projects = work.map(toAgentProject);
   const fallback = answerPortfolioQuestion(question, projects);
 
+  const isJobMatch = isJobDescriptionMatchQuestion(question);
+
   if (hasBlockedQuestion(question)) {
     return NextResponse.json({ ...guardedAnswer(), mode: "guarded" });
   }
-
-  // Coursework is answered deterministically (course topics only, no grades) so
-  // the model never invents marks.
-  if (isCourseworkQuestion(question)) {
-    return NextResponse.json({ ...fallback, mode: "local" });
-  }
-
-  // Tech-stack is a factual list — keep it deterministic. Job-description
-  // matching now goes through the LLM (with a dedicated fit-analyst prompt), so
-  // it is NOT short-circuited here.
-  if (isTechStackQuestion(question)) {
-    return NextResponse.json({ ...fallback, mode: "local" });
-  }
-
-  const isJobMatch = isJobDescriptionMatchQuestion(question);
 
   // A JD-match intent with no posting pasted (e.g. clicking the "Match a job
   // description" chip and sending it empty) must ask for the JD, not route an
@@ -320,11 +307,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ ...fallback, mode: "local" });
   }
 
-  // Standard recruiter screening (availability, work auth, relocation, role
-  // type) is answered from precise presets, not the LLM. Job descriptions can
-  // mention these words too, so never treat a JD paste as a screening question.
-  if (!isJobMatch && isScreeningQuestion(question)) {
-    return NextResponse.json({ ...fallback, mode: "local" });
+  // The deterministic short-circuits below (coursework, tech-stack, recruiter
+  // screening) are for plain questions only. A pasted job description routinely
+  // mentions "machine learning", a language, or "availability" in passing, so a
+  // real JD must skip these and go to the LLM fit-analyst.
+  if (!isJobMatch) {
+    // Coursework — course topics only, no grades, so the model never invents marks.
+    if (isCourseworkQuestion(question)) {
+      return NextResponse.json({ ...fallback, mode: "local" });
+    }
+    // Tech-stack is a factual list — keep it deterministic.
+    if (isTechStackQuestion(question)) {
+      return NextResponse.json({ ...fallback, mode: "local" });
+    }
+    // Standard recruiter screening (availability, work auth, relocation, role type).
+    if (isScreeningQuestion(question)) {
+      return NextResponse.json({ ...fallback, mode: "local" });
+    }
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
