@@ -119,23 +119,41 @@ export async function POST(request: Request) {
 
   const pageUrl = request.headers.get("referer") ?? "";
   const subject = `Portfolio contact from ${submission.company || submission.name}`;
-  const response = await fetch(resendEndpoint, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      "Idempotency-Key": crypto.randomUUID(),
-    },
-    body: JSON.stringify({
-      from: fromEmail,
-      to: [toEmail],
-      reply_to: submission.email,
-      subject,
-      text: buildPlainTextEmail(submission, pageUrl),
-      html: buildHtmlEmail(submission, pageUrl),
-      tags: [{ name: "source", value: "portfolio-contact" }],
-    }),
-  });
+  const sandboxFrom = `${profile.name} <onboarding@resend.dev>`;
+
+  const send = (from: string) =>
+    fetch(resendEndpoint, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "Idempotency-Key": crypto.randomUUID(),
+      },
+      body: JSON.stringify({
+        from,
+        to: [toEmail],
+        reply_to: submission.email,
+        subject,
+        text: buildPlainTextEmail(submission, pageUrl),
+        html: buildHtmlEmail(submission, pageUrl),
+        tags: [{ name: "source", value: "portfolio-contact" }],
+      }),
+    });
+
+  let response = await send(fromEmail);
+
+  // If the configured sender domain isn't verified with Resend (e.g. a stale
+  // CONTACT_FROM_EMAIL pointing at an unverified custom domain), retry once with
+  // Resend's shared onboarding sender so the message still gets through.
+  if (!response.ok && fromEmail !== sandboxFrom) {
+    const detail = await response.text();
+    console.warn(
+      "Contact sender rejected; retrying with the shared sender:",
+      response.status,
+      detail,
+    );
+    response = await send(sandboxFrom);
+  }
 
   if (!response.ok) {
     const details = await response.text();
