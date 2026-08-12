@@ -150,7 +150,7 @@
       "What's your tech stack?",
       "How can I reach you?"
     ],
-    "initialMessage": "Hey - I'm Hany, or really an AI version of me. Ask me about my projects, tech stack, coursework, or my Winter 2027 co-op fit and I'll answer straight, with the sources I used.",
+    "initialMessage": "Hey — I'm Hany (well, an AI version of me). I build backend and data systems, and I'm happy to get into the weeds on anything I've made. Ask about my projects, my stack, or my Winter 2027 co-op search — or paste a job description and I'll break down how I'd fit.",
     "eyebrow": "Ask me",
     "title": "Hany Jiang",
     "factSuffix": "case studies - courses - skills indexed",
