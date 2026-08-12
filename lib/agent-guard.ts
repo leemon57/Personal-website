@@ -10,7 +10,9 @@ import type { AgentHistoryMessage } from "@/lib/portfolio-agent";
  */
 
 export const maxQuestionLength = 8_000;
-export const maxHistoryTurns = 4;
+// Counts both visitor and assistant turns, so this holds ~3 exchanges of
+// context — enough for the model to avoid repeating earlier answers.
+export const maxHistoryTurns = 6;
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -211,18 +213,24 @@ export function readHistory(payload: unknown): AgentHistoryMessage[] {
 
   return payload.history
     .flatMap((item): AgentHistoryMessage[] => {
-      if (!isRecord(item) || typeof item.content !== "string" || item.role !== "user") {
+      if (
+        !isRecord(item) ||
+        typeof item.content !== "string" ||
+        (item.role !== "user" && item.role !== "assistant")
+      ) {
         return [];
       }
 
-      return [
-        {
-          role: item.role,
-          content: item.content.trim().slice(0, 1000),
-        },
-      ];
+      const content = item.content.trim().slice(0, 1000);
+      // Only screen visitor-authored turns for injection; assistant turns are
+      // the model's own earlier replies and are needed so it doesn't repeat
+      // itself across a conversation.
+      if (item.role === "user" && hasBlockedQuestion(content)) {
+        return [];
+      }
+
+      return [{ role: item.role, content }];
     })
     .filter((item) => item.content.length > 0)
-    .filter((item) => !hasBlockedQuestion(item.content))
     .slice(-maxHistoryTurns);
 }
