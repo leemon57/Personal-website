@@ -1,0 +1,108 @@
+---
+title: "Instant Risk Coverage - insurance data & reporting pipelines"
+subtitle: "Summer 2026 co-op as a Technology Operations Developer at Instant Risk Coverage. I enhanced and built ETL and reporting pipelines across their Medusa e-commerce and insurance platforms - Mage AI into PostgreSQL data marts and Metabase, an end-to-end premium/commission reporting pipeline generating 256 monthly carrier statements, and a Node.js/MongoDB policy-cancellation toolkit that cut processing time by over 90%."
+slug: "instant-risk-coverage"
+category: "work experience"
+date: "2026-08-11"
+status: "current"
+role: "Technology Operations Developer"
+timeline: "Instant Risk Coverage, Summer 2026 (May - Aug)"
+stack: ["PostgreSQL", "SQL", "Python", "Mage AI", "Node.js", "MongoDB", "Metabase"]
+featured: true
+order: 1
+---
+
+<p className="caps">The role</p>
+
+Instant Risk Coverage sells insurance through an e-commerce-style platform built on Medusa, so the business runs on two kinds of data at once: order and product data from the storefront, and policy, premium, and commission data from the insurance side. As a Technology Operations Developer over the Summer 2026 term, I worked across that data and reporting layer - keeping the existing analytics pipelines healthy, standing up reporting for a brand-new insurance platform, and building operational tooling for the parts of policy administration that were still manual or slow.
+
+Most of the work sat at the seam between raw operational systems and the numbers people actually act on: finance teams reconciling premium, carriers receiving monthly statements, and operators processing cancellations. The recurring theme was turning messy, multi-source records into trustworthy, repeatable outputs.
+
+<p className="caps">What I worked on</p>
+
+I owned several pipelines end to end rather than a single feature. On the analytics side I extended the existing warehouse; on the insurance side I built new reporting from the ground up; and on the operations side I replaced a slow manual process with a validated toolkit. Across all of it the priority was correctness under real-world edge cases, because these outputs go to carriers and finance rather than to a dashboard nobody checks.
+
+<p className="caps">Reporting pipelines</p>
+
+<figure className="fig">
+  <svg viewBox="0 0 680 300" className="diagram" role="img" aria-label="Instant Risk Coverage reporting pipeline diagram">
+    <text x="20" y="34" className="label-faint">SOURCES</text>
+    <text x="270" y="34" className="label-faint">STAGING</text>
+    <text x="452" y="34" className="label-faint">DATA MART</text>
+    <text x="576" y="34" className="label-faint">OUTPUTS</text>
+
+    <rect className="node-soft" x="20" y="52" width="150" height="46" rx="4" />
+    <text x="95" y="74" textAnchor="middle">Medusa e-commerce</text>
+    <text x="95" y="90" textAnchor="middle">orders / SKUs</text>
+
+    <rect className="node-soft" x="20" y="128" width="150" height="46" rx="4" />
+    <text x="95" y="150" textAnchor="middle">pricing service</text>
+    <text x="95" y="166" textAnchor="middle">insurance platform</text>
+
+    <rect className="node-soft" x="20" y="204" width="150" height="46" rx="4" />
+    <text x="95" y="226" textAnchor="middle">policy / payment</text>
+    <text x="95" y="242" textAnchor="middle">customer / entity</text>
+
+    <rect className="node accent" x="262" y="120" width="130" height="60" rx="4" style={{ strokeWidth: 1.5 }} />
+    <text x="327" y="146" textAnchor="middle">PostgreSQL</text>
+    <text x="327" y="162" textAnchor="middle">staging layer</text>
+
+    <rect className="node" x="446" y="120" width="118" height="60" rx="4" />
+    <text x="505" y="146" textAnchor="middle">data mart</text>
+    <text x="505" y="162" textAnchor="middle">tables</text>
+
+    <rect className="node" x="576" y="52" width="96" height="46" rx="4" />
+    <text x="624" y="79" textAnchor="middle">Metabase</text>
+
+    <rect className="node" x="576" y="128" width="96" height="46" rx="4" />
+    <text x="624" y="150" textAnchor="middle">256 Excel</text>
+    <text x="624" y="166" textAnchor="middle">statements</text>
+
+    <rect className="node-soft" x="576" y="204" width="96" height="46" rx="4" />
+    <text x="624" y="231" textAnchor="middle">carriers</text>
+
+    <path className="arrow" d="M170 78 L262 138" markerEnd="url(#irc-ah)" />
+    <path className="arrow" d="M170 150 L262 150" markerEnd="url(#irc-ah)" />
+    <path className="arrow" d="M170 224 L262 164" markerEnd="url(#irc-ah)" />
+    <path className="arrow" d="M392 150 L446 150" markerEnd="url(#irc-ah)" />
+    <path className="arrow" d="M564 140 L576 90" markerEnd="url(#irc-ah)" />
+    <path className="arrow" d="M564 150 L576 150" markerEnd="url(#irc-ah)" />
+    <path className="arrow dash" d="M624 174 L624 204" markerEnd="url(#irc-ah)" />
+
+    <defs>
+      <marker id="irc-ah" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+        <path d="M0,0 L6,4 L0,8" fill="none" stroke="currentColor" strokeWidth="1" />
+      </marker>
+    </defs>
+  </svg>
+  <figcaption>
+    Operational data lands in a PostgreSQL staging layer and is modelled into data mart tables that power both Metabase reporting and generated monthly statements - 256 Excel files calculated at separate insurer and broker rates and sent to carriers.
+  </figcaption>
+</figure>
+
+I enhanced more than ten Mage AI ETL pipelines that transform Medusa e-commerce data through a PostgreSQL staging layer into data mart tables, which power the company's Metabase reporting. Keeping those healthy meant working inside an existing warehouse pattern - staging first, then modelled marts - rather than pulling numbers straight from production.
+
+I then built the end-to-end reporting pipeline for a brand-new insurance platform. That meant landing an internal pricing service into a new staging layer and data mart, then calculating premium, commission, and net figures at separate insurer and broker rates - and generating 256 monthly Excel statements to send out to carriers. Because insurers and brokers settle at different rates, the calculation logic had to be explicit and auditable, not a single blended number.
+
+To retire an older process, I automated monthly policy-level premium reporting. The report joins order, line-item, customer, entity, SKU, and payment data in SQL, with Python handling validation and formatting on top. Before cutover, I reconciled the automated output against the legacy system so the switch could happen with confidence that the new numbers matched the ones the business already trusted.
+
+<p className="caps">Policy-cancellation toolkit</p>
+
+Separately, I built a Node.js and MongoDB toolkit for processing parent-child policy cancellations. Cancellations are not a single row - a parent policy can have dependent child policies, and getting one wrong has real financial consequences - so the toolkit was built defensively: rollback snapshots so a bad run can be undone, explicit edge-case validation, and CSV-to-JSON conversion to bridge the input formats the team worked with. Automating what had been a manual, error-prone process cut processing time by over 90%.
+
+<p className="caps">Key decisions</p>
+
+- **Stage first, then model.** Both the e-commerce and insurance pipelines land raw data into a PostgreSQL staging layer before building data mart tables, so reporting reads from stable, modelled tables instead of live operational systems.
+- **Make rate logic explicit.** Premium, commission, and net were calculated at separate insurer and broker rates rather than a blended figure, so the 256 monthly statements are auditable line by line - the kind of correctness carriers and finance actually need.
+- **Reconcile before cutover.** The automated premium report was checked against the legacy system before switching over, so replacing a trusted process never meant trusting unverified numbers.
+- **Build cancellations to be reversible.** Rollback snapshots and edge-case validation came first, because a parent-child cancellation toolkit that is fast but wrong is worse than the manual process it replaces.
+
+<p className="caps">Impact</p>
+
+The term left the business with pipelines and tooling it can keep running: 10+ enhanced Mage AI ETL pipelines feeding Metabase, a new insurance-platform reporting pipeline generating 256 monthly carrier statements at correct insurer and broker rates, an automated and reconciled monthly premium report ready to replace the legacy system, and a cancellation toolkit that cut a manual process's time by over 90% while making it safer to run.
+
+<p className="caps">What I would do differently</p>
+
+I would invest earlier in automated data-quality checks between the staging and mart layers. Much of the manual reconciliation work exists because problems surface at the report, not at ingestion; contract-style tests on the staging tables would catch bad or missing data before it reaches a carrier statement.
+
+I would also generalize the rate-calculation logic into a small, well-tested module rather than pipeline-specific code. With insurer and broker rates already diverging, a single shared calculation layer would make new products and new carriers cheaper to onboard and easier to audit as the insurance platform grows.
