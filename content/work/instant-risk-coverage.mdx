@@ -24,62 +24,6 @@ I owned several pipelines end to end rather than a single feature. On the analyt
 
 <p className="caps">Reporting pipelines</p>
 
-<figure className="fig">
-  <svg viewBox="0 0 680 300" className="diagram" role="img" aria-label="Instant Risk Coverage reporting pipeline diagram">
-    <text x="20" y="34" className="label-faint">SOURCES</text>
-    <text x="270" y="34" className="label-faint">STAGING</text>
-    <text x="452" y="34" className="label-faint">DATA MART</text>
-    <text x="576" y="34" className="label-faint">OUTPUTS</text>
-
-    <rect className="node-soft" x="20" y="52" width="150" height="46" rx="4" />
-    <text x="95" y="74" textAnchor="middle">Medusa e-commerce</text>
-    <text x="95" y="90" textAnchor="middle">orders / SKUs</text>
-
-    <rect className="node-soft" x="20" y="128" width="150" height="46" rx="4" />
-    <text x="95" y="150" textAnchor="middle">pricing service</text>
-    <text x="95" y="166" textAnchor="middle">insurance platform</text>
-
-    <rect className="node-soft" x="20" y="204" width="150" height="46" rx="4" />
-    <text x="95" y="226" textAnchor="middle">policy / payment</text>
-    <text x="95" y="242" textAnchor="middle">customer / entity</text>
-
-    <rect className="node accent" x="262" y="120" width="130" height="60" rx="4" style={{ strokeWidth: 1.5 }} />
-    <text x="327" y="146" textAnchor="middle">PostgreSQL</text>
-    <text x="327" y="162" textAnchor="middle">staging layer</text>
-
-    <rect className="node" x="446" y="120" width="118" height="60" rx="4" />
-    <text x="505" y="146" textAnchor="middle">data mart</text>
-    <text x="505" y="162" textAnchor="middle">tables</text>
-
-    <rect className="node" x="576" y="52" width="96" height="46" rx="4" />
-    <text x="624" y="79" textAnchor="middle">Metabase</text>
-
-    <rect className="node" x="576" y="128" width="96" height="46" rx="4" />
-    <text x="624" y="150" textAnchor="middle">256 Excel</text>
-    <text x="624" y="166" textAnchor="middle">statements</text>
-
-    <rect className="node-soft" x="576" y="204" width="96" height="46" rx="4" />
-    <text x="624" y="231" textAnchor="middle">carriers</text>
-
-    <path className="arrow" d="M170 78 L262 138" markerEnd="url(#irc-ah)" />
-    <path className="arrow" d="M170 150 L262 150" markerEnd="url(#irc-ah)" />
-    <path className="arrow" d="M170 224 L262 164" markerEnd="url(#irc-ah)" />
-    <path className="arrow" d="M392 150 L446 150" markerEnd="url(#irc-ah)" />
-    <path className="arrow" d="M564 140 L576 90" markerEnd="url(#irc-ah)" />
-    <path className="arrow" d="M564 150 L576 150" markerEnd="url(#irc-ah)" />
-    <path className="arrow dash" d="M624 174 L624 204" markerEnd="url(#irc-ah)" />
-
-    <defs>
-      <marker id="irc-ah" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
-        <path d="M0,0 L6,4 L0,8" fill="none" stroke="currentColor" strokeWidth="1" />
-      </marker>
-    </defs>
-  </svg>
-  <figcaption>
-    Operational data lands in a PostgreSQL staging layer and is modelled into data mart tables that power both Metabase reporting and generated monthly statements - 256 Excel files calculated at separate insurer and broker rates and sent to carriers.
-  </figcaption>
-</figure>
-
 I enhanced more than ten Mage AI ETL pipelines that transform Medusa e-commerce data through a PostgreSQL staging layer into data mart tables, which power the company's Metabase reporting. Keeping those healthy meant working inside an existing warehouse pattern - staging first, then modelled marts - rather than pulling numbers straight from production.
 
 I then built the end-to-end reporting pipeline for a brand-new insurance platform. That meant landing an internal pricing service into a new staging layer and data mart, then calculating premium, commission, and net figures at separate insurer and broker rates - and generating 256 monthly Excel statements to send out to carriers. Because insurers and brokers settle at different rates, the calculation logic had to be explicit and auditable, not a single blended number.
